@@ -1,0 +1,6 @@
+{
+  "require": [
+    "docker",
+    "build-essential"
+  ]
+}
