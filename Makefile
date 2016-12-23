@@ -28,14 +28,3 @@ ssh:
 
 enter:
 	@docker exec -ti -u ubuntu $(container) bash -il
-
-scratch:
-	$(MAKE) docker
-	$(MAKE) redeploy
-
-redeploy:
-	$(MAKE) daemon
-	$(MAKE) deploy
-	$(MAKE) image
-	$(MAKE) daemon
-
