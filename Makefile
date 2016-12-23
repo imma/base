@@ -21,7 +21,7 @@ daemon:
 	@docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
 deploy:
-	@env HOME_REPO=git@github.com:imma/squid home remote cache init ssh -A -p 2222 ubuntu@localhost --
+	@env HOME_REPO=$(shell git config --local remote.origin.url) home remote cache init ssh -A -p 2222 ubuntu@localhost --
 
 ssh:
 	@ssh -t -A -p 2222 ubuntu@localhost env http_proxy=http://$(CACHE_VIP):3128 https_proxy=https://$(CACHE_VIP) bash -il
