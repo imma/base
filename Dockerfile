@@ -11,8 +11,10 @@ FROM ubuntu:xenial
 # |  __/ | | \ V / 
 #  \___|_| |_|\_/  
 
-ENV http_proxy http://172.28.128.1:3128/
-ENV https_proxy http://172.28.128.1:3128/
+ARG http_proxy
+
+ENV http_proxy ${http_proxy}
+ENV https_proxy ${http_proxy}
 
 #                  _   
 #  _ __ ___   ___ | |_ 
