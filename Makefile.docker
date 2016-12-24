@@ -1,13 +1,18 @@
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
+DOCKER = $(CACHE_VIP):5000
 
 container = block-$(shell basename $(PWD))
 
 docker:
-	@docker build -t $(container) --build-arg http_proxy="$(CACHE)" $(opt) .
+	@docker build -t $(container) --build-arg http_proxy="$(CACHE)" --build-arg docker_proxy="$(DOCKER)" $(opt) .
 
 image:
 	@docker commit $(container) $(container) $(opt)
+
+publish:
+	@docker tag $(container) $(DOCKER)/$(container)
+	@docker push $(DOCKER)/$(container)
 
 daemon:
 	@docker rm -f $(container) $(container) 2>/dev/null || true
