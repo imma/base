@@ -30,7 +30,7 @@ home:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- rm -rf home
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git reset --hard
 
-deploy:
+block:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(http_proxy) https_proxy=$(https_proxy) ssh_gateway=$(ssh_gateway) ssh_gateway_user=$(LOGNAME) script/cibuild
 
 ssh:
