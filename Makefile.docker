@@ -42,7 +42,7 @@ home:
 update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git pull
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block clone
-	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block runmany 8 'cd $$1 && git pull'
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block runmany 8 "'cd \$$1 && pwd && git pull'"
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block bootstrap
 
 block:
