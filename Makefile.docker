@@ -2,23 +2,24 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
-container = block:$(shell basename $(shell dirname $(PWD)))
+image = block:$(shell basename $(shell dirname $(PWD)))
+container = block-$(shell basename $(shell dirname $(PWD)))
 
 reset:
-	docker tag $(DOCKER)/$(block-ubuntu-home) $(DOCKER)/$(container)
+	docker tag $(DOCKER)/$(block-ubuntu-home) $(DOCKER)/$(image)
 
 docker:
-	docker build -t $(DOCKER)/$(container) --build-arg http_proxy="$(CACHE)" $(opt) .
+	docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(container)
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(image)
 	docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
 image:
-	docker commit $(container) $(DOCKER)/$(container) $(opt)
+	docker commit $(container) $(DOCKER)/$(image) $(opt)
 
 publish:
-	docker push $(DOCKER)/$(container)
+	docker push $(DOCKER)/$(image)
 
 daemon:
 	$(MAKE) clean
