@@ -6,7 +6,7 @@ image = block:$(shell basename $(shell dirname $(PWD)))
 container = block-$(shell basename $(shell dirname $(PWD)))
 
 reset:
-	docker tag $(DOCKER)/$(block-ubuntu-home) $(DOCKER)/$(image)
+	docker tag $(DOCKER)/block:ubuntu-home $(DOCKER)/$(image)
 
 docker:
 	docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
