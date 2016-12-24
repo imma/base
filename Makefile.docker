@@ -4,6 +4,9 @@ DOCKER = $(CACHE_VIP):5000
 
 container = block-$(shell basename $(shell dirname $(PWD)))
 
+reset:
+	docker tag $(DOCKER)/$(block-ubuntu-home) $(DOCKER)/$(container)
+
 docker:
 	docker build -t $(DOCKER)/$(container) --build-arg http_proxy="$(CACHE)" $(opt) .
 
@@ -20,16 +23,26 @@ publish:
 daemon:
 	$(MAKE) clean
 	$(MAKE) sshd
+	$(MAKE) once
+
+once:
+	ssh-keygen -R '[localhost]:$(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort')'
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true
 
 home:
-	ssh-keygen -R '[localhost]:$(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort')'
-	echo "Host *" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- tee .ssh/config
+	echo "Host *" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee .ssh/config
 	echo "StrictHostKeyChecking no" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee -a .ssh/config
-	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(http_proxy) https_proxy=$(https_proxy) ssh_gateway=$(ssh_gateway) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- mv home/.git .
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- rm -rf home
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git reset --hard
-	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(http_proxy) https_proxy=$(https_proxy) ssh_gateway=$(ssh_gateway) ssh_gateway_user=$(LOGNAME) script/cibuild
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) script/cibuild
+
+update:
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git pull
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block clone
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block runmany 8 'cd $$1 && git pull'
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- block bootstrap
 
 block:
 	true
