@@ -1,22 +1,21 @@
-#   ___ _ ____   __
-#  / _ \ '_ \ \ / /
-# |  __/ | | \ V / 
-#  \___|_| |_|\_/  
-
-ARG http_proxy
-ARG docker_proxy
-
-ENV http_proxy ${http_proxy}
-ENV https_proxy ${http_proxy}
-
 #      _            _             
 #   __| | ___   ___| | _____ _ __ 
 #  / _` |/ _ \ / __| |/ / _ \ '__|
 # | (_| | (_) | (__|   <  __/ |   
 #  \__,_|\___/ \___|_|\_\___|_|   
                                 
-FROM ${docker_proxy}/ubuntu:xenial
+FROM 172.28.128.1:5000/ubuntu:xenial
                  
+#   ___ _ ____   __
+#  / _ \ '_ \ \ / /
+# |  __/ | | \ V / 
+#  \___|_| |_|\_/  
+
+ARG http_proxy
+
+ENV http_proxy ${http_proxy}
+ENV https_proxy ${http_proxy}
+
 #                  _   
 #  _ __ ___   ___ | |_ 
 # | '__/ _ \ / _ \| __|

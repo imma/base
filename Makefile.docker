@@ -5,7 +5,7 @@ DOCKER = $(CACHE_VIP):5000
 container = block-$(shell basename $(PWD))
 
 docker:
-	@docker build -t $(container) --build-arg http_proxy="$(CACHE)" --build-arg docker_proxy="$(DOCKER)" $(opt) .
+	@docker build -t $(container) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 image:
 	@docker commit $(container) $(container) $(opt)
