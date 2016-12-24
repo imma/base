@@ -2,7 +2,7 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
-container = block-$(shell basename $(shell dirname $(PWD)))
+container = block:$(shell basename $(shell dirname $(PWD)))
 
 reset:
 	docker tag $(DOCKER)/$(block-ubuntu-home) $(DOCKER)/$(container)
