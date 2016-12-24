@@ -21,8 +21,17 @@ daemon:
 	$(MAKE) clean
 	$(MAKE) sshd
 
+home:
+	ssh-keygen -R '[localhost]:$(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort')'
+	echo "Host *" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- tee .ssh/config
+	echo "StrictHostKeyChecking no" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee -a .ssh/config
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(http_proxy) https_proxy=$(https_proxy) ssh_gateway=$(ssh_gateway) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- mv home/.git .
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- rm -rf home
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git reset --hard
+
 deploy:
-	@env HOME_REPO=$(shell git config --local remote.origin.url) home remote cache init ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost --
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(http_proxy) https_proxy=$(https_proxy) ssh_gateway=$(ssh_gateway) ssh_gateway_user=$(LOGNAME) script/cibuild
 
 ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
