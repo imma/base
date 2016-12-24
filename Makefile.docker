@@ -5,17 +5,17 @@ DOCKER = $(CACHE_VIP):5000
 container = block-$(shell basename $(shell dirname $(PWD)))
 
 docker:
-	@docker build -t $(DOCKER)/$(container) --build-arg http_proxy="$(CACHE)" $(opt) .
+	docker build -t $(DOCKER)/$(container) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 sshd:
-	@docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(container)
-	@docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(container)
+	docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
 image:
-	@docker commit $(container) $(DOCKER)/$(container) $(opt)
+	docker commit $(container) $(DOCKER)/$(container) $(opt)
 
 publish:
-	@docker push $(DOCKER)/$(container)
+	docker push $(DOCKER)/$(container)
 
 daemon:
 	$(MAKE) clean
@@ -28,7 +28,7 @@ ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
 
 enter:
-	@docker exec -ti -u ubuntu $(container) bash -il
+	docker exec -ti -u ubuntu $(container) bash -il
 
 clean:
-	@docker rm -f $(container) 2>/dev/null || true
+	docker rm -f $(container) 2>/dev/null || true
