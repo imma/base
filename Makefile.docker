@@ -2,14 +2,14 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
-image = block:$(shell basename $(shell dirname $(PWD)))
-container = block-$(shell basename $(shell dirname $(PWD)))
+image = block:$(shell basename $(shell echo $(PWD)))
+container = block-$(shell basename $(shell echo $(PWD)))
 
 reset:
 	docker tag $(DOCKER)/block:ubuntu-home $(DOCKER)/$(image)
 
 docker:
-	docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
+	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 sshd:
 	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(image)
@@ -49,7 +49,7 @@ update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- make cache
 
 block:
-	jq -n --arg block $(shell basename $(shell dirname $(PWD))) '{ require: [ $$block ] }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+	jq -n --arg block $(shell basename $(shell echo $(PWD))) '{ require: [ $$block ] }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
 
 ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
