@@ -55,7 +55,14 @@ ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
 
 enter:
-	docker exec -ti -u ubuntu $(container) bash -il
+	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
 
 clean:
 	docker rm -f $(container) 2>/dev/null || true
+
+status:
+	@docker ps --filter 'name=$(container)'
+
+beast:
+	$(MAKE) reset daemon block update image publish
+	$(MAKE) daemon status
