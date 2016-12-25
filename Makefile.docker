@@ -64,5 +64,9 @@ status:
 	@docker ps --filter 'name=$(container)'
 
 beast:
-	$(MAKE) reset daemon block update image publish
+	$(MAKE) reset 
+	$(MAKE) beast-update
+
+beast-update:
+	$(MAKE) daemon block update image publish
 	$(MAKE) daemon status
