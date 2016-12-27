@@ -42,6 +42,7 @@ once:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true
 
 home:
+	$(MAKE) once
 	echo "Host *" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee .ssh/config
 	echo "StrictHostKeyChecking no" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee -a .ssh/config
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
