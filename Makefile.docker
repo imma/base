@@ -76,10 +76,14 @@ status:
 	@docker ps --filter 'name=$(container)'
 
 cave:
-	$(MAKE) reset-base daemon home commit build-nc publish
+	$(MAKE) reset-base daemon home 
+	$(MAKE) image-update
 	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
-	$(MAKE) daemon status
 
 beast:
-	$(MAKE) daemon block update commit build-nc publish
+	$(MAKE) reset daemon block
+	$(MAKE) image-update
+
+image-update:
+	$(MAKE) update commit build-nc publish
 	$(MAKE) daemon status
