@@ -56,7 +56,7 @@ update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- make cache
 
 block:
-	jq -n --arg block $(shell basename $(shell echo $(PWD))) '{ require: [ $$block ], run: { $$block: {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+	jq -n --arg block $(shell basename $(shell echo $(PWD))) '{ require: [ $$block ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
 
 ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
