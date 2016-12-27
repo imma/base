@@ -6,6 +6,9 @@ block = $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
 
+reset-xenial:
+	docker tag $(DOCKER)/block:xenial $(DOCKER)/$(image)
+
 reset-base:
 	docker tag $(DOCKER)/block:base $(DOCKER)/$(image)
 
