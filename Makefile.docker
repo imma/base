@@ -22,7 +22,7 @@ build-nc:
 	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(image)
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
 	docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
 commit:
