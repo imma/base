@@ -30,8 +30,7 @@ publish:
 daemon:
 	$(MAKE) clean
 	$(MAKE) sshd
-	$(MAKE) once || true
-	$(MAKE) once || true
+	sleep 5
 	$(MAKE) once
 
 once:
@@ -47,7 +46,6 @@ home:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git reset --hard
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) script/cibuild
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- make cache
-	docker commit $(container) $(DOCKER)/$(image)0 $(opt)
 
 update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git pull
@@ -74,6 +72,7 @@ status:
 
 cave:
 	$(MAKE) reset-base home commit build-nc publish
+	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
 	$(MAKE) daemon status
 
 beast:
