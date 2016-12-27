@@ -34,12 +34,11 @@ publish:
 daemon:
 	$(MAKE) clean
 	$(MAKE) sshd
-	sleep 5
 	$(MAKE) once
 
 once:
 	ssh-keygen -R '[localhost]:$(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')'
-	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true || { sleep 1; $(MAKE) once; }
 
 home:
 	$(MAKE) once
