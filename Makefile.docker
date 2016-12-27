@@ -72,10 +72,10 @@ clean:
 status:
 	@docker ps --filter 'name=$(container)'
 
+cave:
+	$(MAKE) reset-base home commit build-nc publish
+	$(MAKE) daemon status
+
 beast:
 	$(MAKE) daemon block update commit build-nc publish
 	$(MAKE) daemon status
-
-meh:
-	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- bash --rcfile .bashrc -c "'block list'"
-
