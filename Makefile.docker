@@ -5,20 +5,23 @@ DOCKER = $(CACHE_VIP):5000
 image = block:$(shell basename $(shell echo $(PWD)))
 container = block-$(shell basename $(shell echo $(PWD)))
 
+reset-base:
+	docker tag $(DOCKER)/block:base $(DOCKER)/$(image)
+
 reset:
 	docker tag $(DOCKER)/block:ubuntu-home $(DOCKER)/$(image)
 
-docker:
+build:
 	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
-docker-nc:
+build-nc:
 	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 sshd:
 	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :22 $(DOCKER)/$(image)
 	docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
-image:
+commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
 
 publish:
@@ -27,6 +30,8 @@ publish:
 daemon:
 	$(MAKE) clean
 	$(MAKE) sshd
+	$(MAKE) once || true
+	$(MAKE) once || true
 	$(MAKE) once
 
 once:
@@ -42,6 +47,7 @@ home:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git reset --hard
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- env GIT_CACHE=1 http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) script/cibuild
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- make cache
+	docker commit $(container) $(DOCKER)/$(image)0 $(opt)
 
 update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') ubuntu@localhost -- git pull
@@ -67,9 +73,9 @@ status:
 	@docker ps --filter 'name=$(container)'
 
 beast:
-	$(MAKE) reset
-	$(MAKE) beast-update
-
-beast-update:
-	$(MAKE) docker-nc daemon block update image publish
+	$(MAKE) daemon block update commit build-nc publish
 	$(MAKE) daemon status
+
+meh:
+	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["22/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost -- bash --rcfile .bashrc -c "'block list'"
+
