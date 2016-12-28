@@ -59,8 +59,15 @@ once:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true || { sleep 1; $(MAKE) once; }
 
 home:
+	$(MAKE) reset-base daemon home-setup home-deploy
+	$(MAKE) image-update
+	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
+
+home-setup:
 	echo "Host *" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee .ssh/config
 	echo "StrictHostKeyChecking no" | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee -a .ssh/config
+
+home-deploy:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- mv home/.git .
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- rm -rf home
@@ -68,7 +75,16 @@ home:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) script/cibuild
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- make cache
 
-update:
+block:
+	$(MAKE) reset daemon block-setup block-deploy
+
+block-deploy:
+	$(MAKE) image-update
+
+block-setup:
+	jq -n --arg block $(block) '{ require: [ $$block ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+
+block-update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- git pull
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- block clone
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- block runmany 8 "'cd \$$1 && pwd && git pull'"
@@ -77,9 +93,6 @@ update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- make cache
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- block compile service
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- ln -nfs ../sv/$(block) service/
-
-block:
-	jq -n --arg block $(block) '{ require: [ $$block ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
 
 ssh:
 	@ssh -t -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
@@ -93,17 +106,8 @@ clean:
 container-status:
 	@docker ps --filter 'name=$(container)'
 
-cave:
-	$(MAKE) reset-base daemon home 
-	$(MAKE) image-update
-	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
-
-beast:
-	$(MAKE) reset daemon block
-	$(MAKE) image-update
-
 image-update:
-	$(MAKE) update commit build-nc publish
+	$(MAKE) block-update commit build-nc publish
 	$(MAKE) daemon container-status
 
 stop:
