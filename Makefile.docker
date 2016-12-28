@@ -1,3 +1,13 @@
+ifeq (stop,$(firstword $(MAKECMDGOALS)))
+STOP := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(STOP):;@:)
+endif
+
+ifeq (start,$(firstword $(MAKECMDGOALS)))
+START := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(START):;@:)
+endif
+
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
@@ -5,6 +15,9 @@ DOCKER = $(CACHE_VIP):5000
 block = $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
+
+nothing:
+	@true
 
 reset-xenial:
 	docker tag $(DOCKER)/block:xenial $(DOCKER)/$(image)
@@ -21,7 +34,7 @@ build:
 build-nc:
 	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
-sshd:
+dameon-sshd:
 	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
 	docker exec -u ubuntu $(container) bash -c "echo $$(head -1 ~/.ssh/authorized_keys) | tee ~/.ssh/authorized_keys"
 
@@ -33,7 +46,7 @@ publish:
 
 daemon:
 	$(MAKE) clean
-	$(MAKE) sshd
+	$(MAKE) daemon-sshd
 	$(MAKE) once
 
 once:
@@ -87,3 +100,9 @@ beast:
 image-update:
 	$(MAKE) update commit build-nc publish
 	$(MAKE) daemon status
+
+stop:
+	docker exec $(container) sv stop ./service/$(STOP)
+
+start:
+	docker exec $(container) sv start ./service/$(START)
