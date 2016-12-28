@@ -8,6 +8,11 @@ START := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(START):;@:)
 endif
 
+ifeq (status,$(firstword $(MAKECMDGOALS)))
+STATUS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(STATUS):;@:)
+endif
+
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
@@ -85,7 +90,7 @@ enter:
 clean:
 	docker rm -f $(container) 2>/dev/null || true
 
-status:
+container-status:
 	@docker ps --filter 'name=$(container)'
 
 cave:
@@ -99,10 +104,14 @@ beast:
 
 image-update:
 	$(MAKE) update commit build-nc publish
-	$(MAKE) daemon status
+	$(MAKE) daemon container-status
 
 stop:
-	docker exec $(container) sv stop ./service/$(STOP)
+	@docker exec $(container) sv stop ./service/$(STOP)
 
 start:
-	docker exec $(container) sv start ./service/$(START)
+	@docker exec $(container) sv start ./service/$(START)
+
+status:
+	@docker exec $(container) sv status ./service/$(STATUS)
+
