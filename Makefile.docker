@@ -70,13 +70,14 @@ daemon-ssh:
 
 service-ssh:
 	ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
+	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
 	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)"}}}' > compose.json
 
 up:
-	docker-compose -f compose.json up
+	docker-compose -f compose.json up -d
+	$(MAKE) service-ssh
 
 down:
 	docker-compose -f compose.json down
@@ -85,7 +86,6 @@ ssh:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
 
 ssh-service:
-	@$(MAKE) service-ssh
 	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
 
 enter:
