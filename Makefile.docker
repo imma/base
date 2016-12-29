@@ -101,6 +101,10 @@ ssh:
 enter:
 	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
 
+prune:
+	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
+	docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc)
+
 clean:
 	docker rm -f $(container) 2>/dev/null || true
 
