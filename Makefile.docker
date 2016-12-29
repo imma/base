@@ -40,10 +40,6 @@ build:
 build-nc:
 	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
-daemon-sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
-	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
-
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
 
@@ -53,11 +49,15 @@ publish:
 daemon:
 	$(MAKE) clean
 	$(MAKE) daemon-sshd
-	$(MAKE) once
+	$(MAKE) daemon-ssh
 
-once:
+daemon-sshd:
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
+	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
+
+daemon-ssh:
 	ssh-keygen -R '[localhost]:$(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')'
-	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true || { sleep 1; $(MAKE) once; }
+	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') -o StrictHostKeyChecking=no ubuntu@localhost -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 home:
 	$(MAKE) reset-base daemon home-setup home-deploy
@@ -79,11 +79,15 @@ home-deploy:
 block:
 	$(MAKE) reset daemon block-setup block-deploy
 
+block-setup:
+	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+
 block-deploy:
 	$(MAKE) image-update
 
-block-setup:
-	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+image-update:
+	$(MAKE) block-update commit build-nc publish
+	$(MAKE) daemon container-status
 
 block-update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- git pull
@@ -101,6 +105,9 @@ ssh:
 enter:
 	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
 
+container-status:
+	@docker ps --filter 'name=$(container)'
+
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
 	docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc)
@@ -108,12 +115,6 @@ prune:
 clean:
 	docker rm -f $(container) 2>/dev/null || true
 
-container-status:
-	@docker ps --filter 'name=$(container)'
-
-image-update:
-	$(MAKE) block-update commit build-nc publish
-	$(MAKE) daemon container-status
 
 stop:
 	@docker exec $(container) sv stop ./service/$(STOP)
