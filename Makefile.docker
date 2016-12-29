@@ -21,8 +21,10 @@ org = $(shell cat Blockfile.json | jq -r '.block.org//"imma"')
 block = $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
+
 container_ssh_port := $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec := ssh -A -p $(container_ssh_port) ubuntu@localhost --
+env_cache := env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
 nothing:
 	@true
@@ -77,11 +79,11 @@ home-setup:
 	echo "StrictHostKeyChecking no" | $(container_ssh_exec) tee -a .ssh/config
 
 home-deploy:
-	$(container_ssh_exec) env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) git clone $(shell git config --local remote.origin.url) home
+	$(container_ssh_exec) $(env_cache) git clone $(shell git config --local remote.origin.url) home
 	$(container_ssh_exec) mv home/.git .
 	$(container_ssh_exec) rm -rf home
 	$(container_ssh_exec) git reset --hard
-	$(container_ssh_exec) env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME) script/cibuild
+	$(container_ssh_exec) $(env_cache) script/cibuild
 	$(container_ssh_exec) make cache
 
 block:
