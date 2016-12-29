@@ -17,14 +17,14 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
-org = $(shell cat Blockfile.json | jq -r '.block.org//"imma"')
-block = $(shell basename $(shell echo $(PWD)))
+org := $(shell cat Blockfile.json | jq -r '.block.org//"imma"')
+block := $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
 
-container_ssh_port := $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
-container_ssh_exec := ssh -A -p $(container_ssh_port) ubuntu@localhost --
-env_cache := env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
+container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
+container_ssh_exec = ssh -A -p $(container_ssh_port) ubuntu@localhost
+env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
 nothing:
 	@true
@@ -60,11 +60,11 @@ daemon-sshd:
 	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
-	ssh-keygen -R '[localhost]:$(container_ssh_port)'
-	$(container_ssh_exec) true || { sleep 1; $(MAKE) daemon-ssh; }
+	ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
+	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 ssh:
-	@ssh -t -A -p $(container_ssh_port) -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost
+	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
 
 enter:
 	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
@@ -75,22 +75,22 @@ home:
 	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
 
 home-setup:
-	echo "Host *" | $(container_ssh_exec) tee .ssh/config
-	echo "StrictHostKeyChecking no" | $(container_ssh_exec) tee -a .ssh/config
+	echo "Host *" | $(container_ssh_exec) -- tee .ssh/config
+	echo "StrictHostKeyChecking no" | $(container_ssh_exec) -- tee -a .ssh/config
 
 home-deploy:
-	$(container_ssh_exec) $(env_cache) git clone $(shell git config --local remote.origin.url) home
-	$(container_ssh_exec) mv home/.git .
-	$(container_ssh_exec) rm -rf home
-	$(container_ssh_exec) git reset --hard
-	$(container_ssh_exec) $(env_cache) script/cibuild
-	$(container_ssh_exec) make cache
+	$(container_ssh_exec) -- $(env_cache) git clone $(shell git config --local remote.origin.url) home
+	$(container_ssh_exec) -- mv home/.git .
+	$(container_ssh_exec) -- rm -rf home
+	$(container_ssh_exec) -- git reset --hard
+	$(container_ssh_exec) -- $(env_cache) script/cibuild
+	$(container_ssh_exec) -- make cache
 
 block:
 	$(MAKE) reset daemon block-setup block-deploy
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
 	$(MAKE) image-update
@@ -100,14 +100,14 @@ image-update:
 	$(MAKE) daemon container-status
 
 block-update:
-	$(container_ssh_exec) git pull
-	$(container_ssh_exec) block clone
-	$(container_ssh_exec) block runmany 8 "'cd \$$1 && pwd && git pull'"
-	$(container_ssh_exec) block clone
-	$(container_ssh_exec) block bootstrap
-	$(container_ssh_exec) make cache
-	$(container_ssh_exec) block compile service
-	$(container_ssh_exec) ln -nfs ../sv/$(block) service/
+	$(container_ssh_exec) -- git pull
+	$(container_ssh_exec) -- block clone
+	$(container_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
+	$(container_ssh_exec) -- block clone
+	$(container_ssh_exec) -- block bootstrap
+	$(container_ssh_exec) -- make cache
+	$(container_ssh_exec) -- block compile service
+	$(container_ssh_exec) -- ln -nfs ../sv/$(block) service/
 
 container-status:
 	@docker ps --filter 'name=$(container)'
