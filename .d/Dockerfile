@@ -61,5 +61,3 @@ RUN touch ~/.ssh/authorized_keys
 USER root
 
 ENTRYPOINT exec /usr/sbin/sshd -De -p 2222
-EXPOSE 2222
-VOLUME /vagrant

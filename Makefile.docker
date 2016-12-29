@@ -22,7 +22,7 @@ block = $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
 
-container_ssh_port := $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
+container_ssh_port := $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec := ssh -A -p $(container_ssh_port) ubuntu@localhost --
 env_cache := env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
