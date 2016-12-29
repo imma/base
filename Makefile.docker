@@ -20,6 +20,7 @@ ifeq "$(strip $(SERVICE))" ""
 SERVICE := service
 endif
 endif
+SERVICE ?= service
 
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
@@ -33,7 +34,7 @@ container = block-$(block)
 container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec = ssh -A -p $(container_ssh_port) ubuntu@localhost
 
-service = $(block)_$(SERVICE)_1
+service = $(subst -,,$(block))_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 service_ssh_exec = ssh -A -p $(service_ssh_port) ubuntu@localhost
 
@@ -84,11 +85,11 @@ compose:
 	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)"}}}' > compose.json
 
 up:
-	docker-compose -f compose.json up -d
+	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d
 	$(MAKE) service-ssh
 
 down:
-	docker-compose -f compose.json down
+	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json down
 
 ssh:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
