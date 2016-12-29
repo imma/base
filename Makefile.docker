@@ -20,10 +20,15 @@ DOCKER = $(CACHE_VIP):5000
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
 block := $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
-container = block-$(block)
 
+container = block-$(block)
 container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec = ssh -A -p $(container_ssh_port) ubuntu@localhost
+
+service = $(block)_service_1
+service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
+service_ssh_exec = ssh -A -p $(service_ssh_port) ubuntu@localhost
+
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
 nothing:
@@ -63,11 +68,31 @@ daemon-ssh:
 	ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
 	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
+service-ssh:
+	ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
+	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
+
+compose:
+	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)"}}}' > compose.json
+
+up:
+	docker-compose -f compose.json up
+
+down:
+	docker-compose -f compose.json down
+
 ssh:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
 
+ssh-service:
+	@$(MAKE) service-ssh
+	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
+
 enter:
 	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
+
+enter-service:
+	docker exec -ti -u ubuntu $(service) bash -il -c 'cd; exec bash -il'
 
 home:
 	$(MAKE) reset-base daemon home-setup home-deploy
@@ -119,7 +144,6 @@ prune:
 
 clean:
 	docker rm -f $(container) 2>/dev/null || true
-
 
 stop:
 	@docker exec $(container) sv stop ./service/$(STOP)
