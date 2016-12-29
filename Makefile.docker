@@ -17,6 +17,7 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
+org = $(shell cat Blockfile.json | jq -r '.block.org//"imma"')
 block = $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 container = block-$(block)
@@ -82,7 +83,7 @@ block-deploy:
 	$(MAKE) image-update
 
 block-setup:
-	jq -n --arg block $(block) '{ require: [ $$block ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- tee Blockfile.json.site
 
 block-update:
 	ssh -A -p $(shell docker inspect $(container) | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort') ubuntu@localhost -- git pull
