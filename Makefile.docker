@@ -162,3 +162,6 @@ start:
 status:
 	@docker exec $(container) sv status ./service/$(STATUS)
 
+status-all:
+	@docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' '
+
