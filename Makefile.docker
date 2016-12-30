@@ -72,6 +72,7 @@ daemon:
 daemon-sshd:
 	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
 	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
+	docker exec $(container) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
 	ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
