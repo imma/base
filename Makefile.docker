@@ -92,10 +92,10 @@ up:
 down:
 	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json down --remove-orphans
 
-ssh:
+shell:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
 
-shell:
+ssh:
 	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
 
 enter:
