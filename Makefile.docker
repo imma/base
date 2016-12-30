@@ -131,7 +131,7 @@ block-deploy:
 
 image-update:
 	$(MAKE) block-update commit build-nc publish
-	$(MAKE) daemon container-status
+	$(MAKE) daemon ps
 
 block-update:
 	$(container_ssh_exec) -- git pull
@@ -143,9 +143,6 @@ block-update:
 	$(container_ssh_exec) -- rm -f service/ubuntu-home
 	$(container_ssh_exec) -- block compile service
 	$(container_ssh_exec) -- ln -nfs ../sv/$(block) service/
-
-container-status:
-	@docker ps --filter 'name=$(container)'
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
@@ -163,6 +160,6 @@ start:
 status:
 	@docker exec $(container) sv status ./service/$(STATUS)
 
-status-all:
-	@docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' '
+ps:
+	docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' ' | egrep -E ' $(block)_| block-$(block)'
 
