@@ -13,7 +13,7 @@ STATUS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(STATUS):;@:)
 endif
 
-ifeq (shell,$(firstword $(MAKECMDGOALS)))
+ifeq (ssh,$(firstword $(MAKECMDGOALS)))
 SERVICE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(SERVICE):;@:)
 ifeq "$(strip $(SERVICE))" ""
@@ -162,5 +162,4 @@ status:
 	@docker exec $(container) sv status ./service/$(STATUS)
 
 ps:
-	docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' ' | egrep -E ' $(block)_| block-$(block)'
-
+	@docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' ' | egrep -E ' $(block)_| block-$(block)'
