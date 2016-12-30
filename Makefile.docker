@@ -30,7 +30,7 @@ org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org
 block := $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 
-container = block-$(block)
+container = $(block)_block_1
 container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec = ssh -A -p $(container_ssh_port) ubuntu@localhost
 
@@ -121,7 +121,7 @@ home-deploy:
 	$(container_ssh_exec) -- $(env_cache) script/cibuild
 	$(container_ssh_exec) -- make cache
 
-block:
+docker:
 	$(MAKE) reset daemon block-setup block-deploy
 
 block-setup:
