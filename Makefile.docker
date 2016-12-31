@@ -134,8 +134,9 @@ block-deploy:
 	$(MAKE) image-update
 
 image-update:
-	$(MAKE) block-update commit build-nc publish
-	$(MAKE) daemon ps
+	$(MAKE) block-update commit publish
+	$(MAKE) build-nc publish
+	$(MAKE) clean
 
 block-update:
 	$(container_ssh_exec) -- git pull
