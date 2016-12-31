@@ -27,6 +27,7 @@ CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
+repo := $(shell basename $(shell echo $(PWD)))
 block := $(subst -,,$(shell basename $(shell echo $(PWD))))
 image = block:$(block)
 
@@ -40,6 +41,8 @@ service_ssh_exec = ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
+home = ubuntuhome
+
 nothing:
 	@true
 
@@ -50,7 +53,7 @@ reset-base:
 	docker tag $(DOCKER)/block:base $(DOCKER)/$(image)
 
 reset:
-	docker tag $(DOCKER)/block:ubuntu-home $(DOCKER)/$(image)
+	docker tag $(DOCKER)/block:$(home) $(DOCKER)/$(image)
 
 build:
 	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
@@ -125,7 +128,7 @@ docker:
 	$(MAKE) reset daemon block-setup block-deploy
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
+	jq -n --arg block $(repo) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
 	$(MAKE) image-update
@@ -141,9 +144,9 @@ block-update:
 	$(container_ssh_exec) -- block clone
 	$(container_ssh_exec) -- block bootstrap
 	$(container_ssh_exec) -- make cache
-	$(container_ssh_exec) -- rm -f service/ubuntu-home
+	$(container_ssh_exec) -- rm -f service/*-home
 	$(container_ssh_exec) -- block compile service
-	$(container_ssh_exec) -- ln -nfs ../sv/$(block) service/
+	$(container_ssh_exec) -- ln -nfs ../sv/$(repo) service/
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
