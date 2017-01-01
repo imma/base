@@ -27,8 +27,7 @@ CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
-repo := $(shell basename $(shell echo $(PWD)))
-block := $(subst -,,$(shell basename $(shell echo $(PWD))))
+block := $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
 
 container = $(block)_block_1
@@ -59,7 +58,7 @@ build:
 	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 build-nc:
-	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
+	cd .d && echo docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
@@ -86,7 +85,7 @@ service-ssh:
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)"}}}' > compose.json
+	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","container_name":"\($$block)"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d --remove-orphans
@@ -128,15 +127,15 @@ docker:
 	$(MAKE) reset daemon block-setup block-deploy
 
 block-setup:
-	jq -n --arg block $(repo) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
 	$(MAKE) image-update
 
 image-update:
 	$(MAKE) block-update commit publish
-	$(MAKE) build-nc publish
-	$(MAKE) clean
+	echo $(MAKE) build-nc publish
+	echo $(MAKE) clean
 
 block-update:
 	$(container_ssh_exec) -- git pull
@@ -147,7 +146,7 @@ block-update:
 	$(container_ssh_exec) -- make cache
 	$(container_ssh_exec) -- rm -f service/home
 	$(container_ssh_exec) -- block compile service
-	$(container_ssh_exec) -- ln -nfs ../sv/$(repo) service/
+	$(container_ssh_exec) -- ln -nfs ../sv/$(block) service/
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
