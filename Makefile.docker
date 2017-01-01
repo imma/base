@@ -40,7 +40,7 @@ service_ssh_exec = ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
-home = ubuntuhome
+home = ubuntu-home
 
 nothing:
 	@true
@@ -81,11 +81,12 @@ daemon-ssh:
 	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 service-ssh:
+	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort'
 	ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","container_name":"\($$block)"}}}' > compose.json
+	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","container_name":"\($$block)_service_1"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d --remove-orphans
