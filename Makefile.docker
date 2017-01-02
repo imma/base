@@ -1,3 +1,7 @@
+org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
+block := $(shell basename $(shell echo $(PWD)))
+image = block:$(block)
+
 ifeq (stop,$(firstword $(MAKECMDGOALS)))
 STOP := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(STOP):;@:)
@@ -17,18 +21,19 @@ ifeq (ssh,$(firstword $(MAKECMDGOALS)))
 SERVICE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(SERVICE):;@:)
 ifeq "$(strip $(SERVICE))" ""
-SERVICE := service
+SERVICE := $(block)
 endif
 endif
-SERVICE ?= service
+SERVICE ?= $(block)
+
+ifeq (remote,$(firstword $(MAKECMDGOALS)))
+REMOTE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(REMOTE):;@:)
+endif
 
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
-
-org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
-block := $(shell basename $(shell echo $(PWD)))
-image = block:$(block)
 
 container = $(block)_block_1
 container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
@@ -37,6 +42,8 @@ container_ssh_exec = ssh -A -p $(container_ssh_port) ubuntu@localhost
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 service_ssh_exec = ssh -A -p $(service_ssh_port) ubuntu@localhost
+
+remote_ssh_exec = ssh -A $(REMOTE)
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
 
@@ -86,7 +93,7 @@ service-ssh:
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{service:{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","container_name":"\($$block)_service_1"}}}' > compose.json
+	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d --remove-orphans
@@ -123,6 +130,16 @@ home-deploy:
 	$(container_ssh_exec) -- git reset --hard
 	$(container_ssh_exec) -- $(env_cache) script/cibuild
 	$(container_ssh_exec) -- make cache
+
+remote:
+	echo "Host *" | $(remote_ssh_exec) -- tee .ssh/config
+	echo "StrictHostKeyChecking no" | $(remote_ssh_exec) -- tee -a .ssh/config
+	$(remote_ssh_exec) -- git clone $(shell git config --local remote.origin.url) home
+	$(remote_ssh_exec) -- mv home/.git .
+	$(remote_ssh_exec) -- rm -rf home
+	$(remote_ssh_exec) -- git reset --hard
+	$(remote_ssh_exec) -- script/cibuild
+	$(remote_ssh_exec) -- make cache
 
 docker:
 	$(MAKE) reset daemon block-setup block-deploy
