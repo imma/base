@@ -13,6 +13,7 @@ FROM 172.28.128.1:5000/block:xenial
 
 ARG http_proxy
 
+RUN echo ${SERIAL}
 ENV http_proxy ${http_proxy}
 ENV https_proxy ${http_proxy}
 

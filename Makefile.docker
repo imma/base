@@ -62,10 +62,10 @@ reset:
 	docker tag $(DOCKER)/block:$(home) $(DOCKER)/$(image)
 
 build:
-	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
+	cd .d && docker build            -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .
 
 build-nc:
-	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
+	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .
 
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
@@ -184,3 +184,12 @@ status:
 
 ps:
 	@docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' ' | egrep -E ' $(block)_| block-$(block)'
+
+SERIAL = $(shell cat .serial)
+
+.serial:
+	@echo 1 > .serial
+
+bump: .serial
+	@echo $(SERIAL) + 1 | bc > .serial.tmp
+	mv .serial.tmp .serial
