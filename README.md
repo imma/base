@@ -2,4 +2,5 @@ Visit http://defn.sh/base/ or open `docs/index.html`
 
 ## Building
 
-    make docker
+    make docker-image
+    make docker-update
