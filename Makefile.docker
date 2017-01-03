@@ -65,7 +65,7 @@ build:
 	cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 build-nc:
-	cd .d && echo docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
+	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" $(opt) .
 
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)

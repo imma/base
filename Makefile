@@ -1,4 +1,4 @@
 include Makefile.docker
 
 docker:
-	$(MAKE) reset-xenial build publish
+	$(MAKE) reset-xenial build-nc publish
