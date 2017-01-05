@@ -26,6 +26,17 @@ endif
 endif
 SERVICE ?= $(block)
 
+ifeq (cat,$(firstword $(MAKECMDGOALS)))
+SERVICE := $(wordlist 2,2,$(MAKECMDGOALS))
+FILE := $(wordlist 3,3,$(MAKECMDGOALS))
+$(eval $(SERVICE):;@:)
+$(eval $(FILE):;@:)
+ifeq "$(strip $(SERVICE))" ""
+SERVICE := $(block)
+endif
+endif
+SERVICE ?= $(block)
+
 ifeq (remote,$(firstword $(MAKECMDGOALS)))
 REMOTE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(REMOTE):;@:)
@@ -107,6 +118,9 @@ shell:
 
 ssh:
 	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
+
+cat:
+	@ssh -p $(service_ssh_port) ubuntu@localhost tee $(FILE)
 
 enter:
 	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
