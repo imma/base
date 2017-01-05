@@ -62,10 +62,10 @@ reset:
 	docker tag $(DOCKER)/block:$(home) $(DOCKER)/$(image)
 
 build:
-	cd .d && docker build            -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .
+	if [[ -d .d ]]; then cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 build-nc:
-	cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
