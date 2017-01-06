@@ -46,6 +46,9 @@ SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
 DOCKER = $(CACHE_VIP):5000
 
+# ssh_prefix = ssh -A defn@172.28.128.1
+ssh_user ?= $(LOGNAME)
+
 container = $(block)_block_1
 container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
 container_ssh_exec = $(ssh_prefix) ssh -A -p $(container_ssh_port) ubuntu@localhost
@@ -56,7 +59,8 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
-env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE) ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(LOGNAME)
+env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE)
+# ^^ ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(ssh_user)
 
 home = ubuntu-home
 
@@ -95,7 +99,7 @@ daemon-sshd:
 	docker exec $(container) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
-	ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
+	$(ssh_prefix) ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
 	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 service-ssh:
