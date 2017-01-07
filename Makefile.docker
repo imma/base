@@ -103,9 +103,9 @@ daemon-ssh:
 	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 service-ssh:
-	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort'
-	ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
+	@echo trying $(service_ssh_exec) ...
+	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
+	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
 	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
@@ -128,6 +128,8 @@ shell:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
 
 ssh:
+	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
+	@@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>&1 >/dev/null
 	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
 
 cat:
