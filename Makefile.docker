@@ -44,7 +44,7 @@ endif
 
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
-DOCKER = $(CACHE_VIP):5000
+DOCKER = $(CACHE_VIP)
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
@@ -108,7 +108,7 @@ service-ssh:
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP):5000" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
+	jq -n --arg registry "$(CACHE_VIP)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d --remove-orphans
