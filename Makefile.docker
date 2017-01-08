@@ -48,16 +48,19 @@ DOCKER = $(CACHE_VIP)
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
+ssh_port ?= 2222
 
 container = $(block)_block_1
-container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
+container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 container_ssh_exec = $(ssh_prefix) ssh -A -p $(container_ssh_port) ubuntu@localhost
 
 service = $(block)_$(SERVICE)_1
-service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["2222/tcp"][].HostPort')
+service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
+
+docker_compose ?= env BLOCK_REGISTRY=$(CACHE_VIP) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE)
 # ^^ ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(ssh_user)
@@ -97,7 +100,7 @@ daemon:
 	$(MAKE) daemon-ssh
 
 daemon-sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :2222 $(DOCKER)/$(image)
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :$(ssh_port) $(DOCKER)/$(image)
 	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
 	docker exec $(container) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
@@ -111,10 +114,10 @@ service-ssh:
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:[2222],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
+	jq -n --arg registry "$(CACHE_VIP)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
-	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json up -d --remove-orphans
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans
 	$(MAKE) service-ssh
 
 credentials:
@@ -125,7 +128,7 @@ credentials:
 	imma credentials | $(MAKE) cat $(block) /config/aws/credentials
 
 down:
-	env COMPOSE_PROJECT_NAME="$(block)" docker-compose -f compose.json down --remove-orphans
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans
 
 shell:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
@@ -213,7 +216,7 @@ status:
 	@docker exec $(container) sv status ./service/$(STATUS)
 
 ps:
-	@docker ps | tail -n +2 | awk '{print $$NF,$$0}' | sort -nr | cut -f2- -d' ' | egrep -E ' $(block)_| block-$(block)'
+	@$(docker_compose) ps
 
 SERIAL = $(shell cat .serial)
 
