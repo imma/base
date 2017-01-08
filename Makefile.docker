@@ -133,7 +133,7 @@ shell:
 ssh:
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
 	@@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>&1 >/dev/null
-	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost
+	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost || true
 
 cat:
 	@ssh -p $(service_ssh_port) ubuntu@localhost tee $(FILE)
