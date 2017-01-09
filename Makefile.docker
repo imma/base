@@ -60,7 +60,9 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
-docker_compose ?= env BLOCK_REGISTRY=$(CACHE_VIP) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
+registry ?= $(CACHE_VIP)
+
+docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE)
 # ^^ ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(ssh_user)
