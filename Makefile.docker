@@ -122,15 +122,18 @@ up:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans
 	$(MAKE) service-ssh
 
+stop:
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop --remove-orphans
+
+down:
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans
+
 credentials:
 	$(service_ssh_exec) -- sudo chown ubuntu:ubuntu /config /data
 	$(service_ssh_exec) -- mkdir -p /config/aws
 	$(service_ssh_exec) -- touch /config/aws/credentials
 	$(service_ssh_exec) -- chmod 600 /config/aws/credentials
 	imma credentials | $(MAKE) cat $(block) /config/aws/credentials
-
-down:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans
 
 shell:
 	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
