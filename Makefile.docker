@@ -196,6 +196,8 @@ image-update:
 block-update:
 	$(container_ssh_exec) -- git pull
 	$(container_ssh_exec) -- block clone
+	$(container_ssh_exec) -- cd work/$(block) && git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
+	$(container_ssh_exec) -- block clone
 	$(container_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
 	$(container_ssh_exec) -- block clone
 	$(container_ssh_exec) -- block bootstrap
@@ -231,3 +233,6 @@ SERIAL = $(shell cat .serial)
 bump: .serial
 	@echo $(SERIAL) + 1 | bc > .serial.tmp
 	mv .serial.tmp .serial
+
+reset-time:
+	docker run -it --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i date -u $(shell date -u +%m%d%H%M%Y)
