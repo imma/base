@@ -123,7 +123,7 @@ up:
 	$(MAKE) service-ssh
 
 down:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop --remove-orphans
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop
 
 destroy:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans
