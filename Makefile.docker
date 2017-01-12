@@ -43,7 +43,7 @@ $(eval $(REMOTE):;@:)
 endif
 
 SHELL = bash
-CACHE = http://$(CACHE_VIP):3128
+CACHE = http://$(cache.nih):3128
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
@@ -64,7 +64,7 @@ registry ?= cache.nih
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE)
-# ^^ ssh_gateway=$(CACHE_VIP) ssh_gateway_user=$(ssh_user)
+# ^^ ssh_gateway=$(cache.nih) ssh_gateway_user=$(ssh_user)
 
 home = ubuntu-home
 
