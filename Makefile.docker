@@ -44,7 +44,6 @@ endif
 
 SHELL = bash
 CACHE = http://$(CACHE_VIP):3128
-DOCKER = $(CACHE_VIP)
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
@@ -60,7 +59,7 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
-registry ?= $(CACHE_VIP)
+registry ?= cache
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
@@ -76,25 +75,25 @@ reset-xenial:
 	docker pull ubuntu:xenial
 	docker tag ubuntu:xenial $(CACHE_VIP)/block:xenial
 	docker push $(CACHE_VIP)/block:xenial
-	docker tag $(DOCKER)/block:xenial $(DOCKER)/$(image)
+	docker tag $(registry)/block:xenial $(registry)/$(image)
 
 reset-base:
-	docker tag $(DOCKER)/block:base $(DOCKER)/$(image)
+	docker tag $(registry)/block:base $(registry)/$(image)
 
 reset:
-	docker tag $(DOCKER)/block:$(home) $(DOCKER)/$(image)
+	docker tag $(registry)/block:$(home) $(registry)/$(image)
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 build-nc:
-	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 commit:
-	docker commit $(container) $(DOCKER)/$(image) $(opt)
+	docker commit $(container) $(registry)/$(image) $(opt)
 
 publish:
-	docker push $(DOCKER)/$(image)
+	docker push $(registry)/$(image)
 
 daemon:
 	$(MAKE) clean
@@ -102,7 +101,7 @@ daemon:
 	$(MAKE) daemon-ssh
 
 daemon-sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :$(ssh_port) $(DOCKER)/$(image)
+	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :$(ssh_port) $(registry)/$(image)
 	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
 	docker exec $(container) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
@@ -157,7 +156,7 @@ enter-service:
 home:
 	$(MAKE) reset-base daemon home-setup home-deploy
 	$(MAKE) image-update
-	docker tag $(DOCKER)/$(image) $(DOCKER)/$(image)0
+	docker tag $(registry)/$(image) $(registry)/$(image)0
 
 home-setup:
 	echo "Host *" | $(container_ssh_exec) -- tee .ssh/config
