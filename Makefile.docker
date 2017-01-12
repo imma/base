@@ -73,8 +73,8 @@ nothing:
 
 reset-xenial:
 	docker pull ubuntu:xenial
-	docker tag ubuntu:xenial $(CACHE_VIP)/block:xenial
-	docker push $(CACHE_VIP)/block:xenial
+	docker tag ubuntu:xenial $(registry)/block:xenial
+	docker push $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
 
 reset-base:
@@ -116,7 +116,7 @@ service-ssh:
 	$(service_ssh_exec) -- sudo chown ubuntu:ubuntu /data /config /vagrant
 
 compose:
-	jq -n --arg registry "$(CACHE_VIP)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
+	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
