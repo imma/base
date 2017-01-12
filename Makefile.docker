@@ -204,7 +204,7 @@ block-update:
 	$(container_ssh_exec) -- make cache
 	$(container_ssh_exec) -- rm -f service/$(home)
 	$(container_ssh_exec) -- block compile service
-	$(container_ssh_exec) -- ln -nfs ../sv/$(block) service/
+	if test -x script/server; then $(container_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
