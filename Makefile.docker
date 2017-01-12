@@ -119,14 +119,14 @@ compose:
 	jq -n --arg registry "$(CACHE_VIP)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
 	$(MAKE) service-ssh
 
 down:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop $(opt)
 
 destroy:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans
+	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans $(opt)
 
 credentials:
 	$(service_ssh_exec) -- sudo chown ubuntu:ubuntu /config /data
