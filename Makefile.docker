@@ -136,7 +136,8 @@ credentials:
 	imma credentials | $(MAKE) cat $(block) /config/aws/credentials
 
 shell:
-	@ssh -t -A -p $(container_ssh_port) ubuntu@localhost
+	@$(MAKE) daemon
+	@$(MAKE) ssh block
 
 ssh:
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
