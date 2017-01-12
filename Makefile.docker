@@ -59,7 +59,7 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
-registry ?= cache
+registry ?= cache.nih
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
