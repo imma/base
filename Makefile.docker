@@ -90,6 +90,13 @@ build:
 build-nc:
 	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(DOCKER)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
+build-bump:
+	$(MAKE) bump
+	git add .serial
+	git commit -m "bump to $(shell cat .serial)"
+	git push
+	$(MAKE) build-nc
+
 commit:
 	docker commit $(container) $(DOCKER)/$(image) $(opt)
 
