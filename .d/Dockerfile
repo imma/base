@@ -11,12 +11,12 @@ FROM cache.nih/block:base
 # |  __/ | | \ V / 
 #  \___|_| |_|\_/  
 
-ARG http_proxy
+ARG CACHE
 ARG SERIAL
 
 RUN echo ${SERIAL}
-ENV http_proxy ${http_proxy}
-ENV https_proxy ${http_proxy}
+ENV http_proxy ${CACHE}
+ENV https_proxy ${CACHE}
 
 #                  _   
 #  _ __ ___   ___ | |_ 

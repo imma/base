@@ -43,7 +43,7 @@ $(eval $(REMOTE):;@:)
 endif
 
 SHELL = bash
-CACHE = http://$(cache.nih):3128
+CACHE = 192.168.1.251
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
@@ -63,7 +63,7 @@ registry ?= cache.nih
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
-env_cache = env http_proxy=$(CACHE) https_proxy=$(CACHE)
+env_cache = env http_proxy=http://$(CACHE):3128 https_proxy=http://$(CACHE):3128
 # ^^ ssh_gateway=$(cache.nih) ssh_gateway_user=$(ssh_user)
 
 home = ubuntu-home
@@ -84,10 +84,10 @@ reset:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg CACHE="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 build-nc:
-	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg http_proxy="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 commit:
 	docker commit $(container) $(registry)/$(image) $(opt)
