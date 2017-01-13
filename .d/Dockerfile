@@ -15,8 +15,8 @@ ARG CACHE
 ARG SERIAL
 
 RUN echo ${SERIAL}
-ENV http_proxy ${CACHE}
-ENV https_proxy ${CACHE}
+ENV http_proxy http://${CACHE}:3128
+ENV https_proxy http://${CACHE}:3128
 
 #                  _   
 #  _ __ ___   ___ | |_ 
