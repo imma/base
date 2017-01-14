@@ -43,7 +43,7 @@ $(eval $(REMOTE):;@:)
 endif
 
 SHELL = bash
-CACHE = 192.168.1.251
+CACHE = $(CACHE_VIP)
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
@@ -74,7 +74,7 @@ nothing:
 reset-xenial:
 	docker pull ubuntu:xenial
 	docker tag ubuntu:xenial $(registry)/block:xenial
-	docker push $(registry)/block:xenial
+	$(push) docker push $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
 
 reset-base:
@@ -93,7 +93,7 @@ commit:
 	docker commit $(container) $(registry)/$(image) $(opt)
 
 publish:
-	docker push $(registry)/$(image)
+	$(push) docker push $(registry)/$(image)
 
 daemon:
 	$(MAKE) clean
