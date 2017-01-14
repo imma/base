@@ -196,7 +196,7 @@ image-update:
 block-update:
 	$(container_ssh_exec) -- git pull
 	$(container_ssh_exec) -- block clone
-	$(container_ssh_exec) -- cd work/$(block) \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(container_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
+	$(container_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(container_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
 	$(container_ssh_exec) -- block clone
 	$(container_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
 	$(container_ssh_exec) -- block clone
