@@ -57,7 +57,7 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu-home
 
-make = echo zzzz $(MAKE) cache=$(cache) squid=$(squid) push=$(push)
+make = $(MAKE) cache=$(cache) squid=$(squid) push=$(push)
 
 registry ?= cache.nih
 
