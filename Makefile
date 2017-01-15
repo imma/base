@@ -1,14 +1,14 @@
 include Makefile.docker
 
 docker-image:
-	time $(MAKE) reset-xenial build publish
+	time $(make) reset-xenial build publish
 
 docker-update:
-	time $(MAKE) clean daemon build publish clean
+	time $(make) clean daemon build publish clean
 
 docker-bump:
-	$(MAKE) bump
+	$(make) bump
 	git add .serial
 	git commit -m "bump to $(shell cat .serial)"
 	git push
-	$(MAKE) docker-image
+	$(make) docker-image

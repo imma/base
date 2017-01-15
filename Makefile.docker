@@ -32,7 +32,6 @@ endif
 ifeq (remote,$(firstword $(MAKECMDGOALS)))
 REMOTE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(REMOTE):;@:)
-	l
 endif
 SERVICE ?= $(block)
 ifeq "$(strip $(SERVICE))" ""
@@ -51,10 +50,6 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
-cache ?= $(CACHE_VIP)
-registry ?= cache.nih
-squid ?= http://$(cache):3128
-
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
@@ -62,10 +57,18 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu-home
 
+make = echo zzzz $(MAKE) cache=$(cache) squid=$(squid) push=$(push)
+
+registry ?= cache.nih
+
 ifeq (nc,$(firstword $(MAKECMDGOALS)))
-$(eval cache=)
-$(eval squid=)
-$(eval push=echo)
+cache=
+squid=
+push=echo
+else
+cache ?= $(CACHE_VIP)
+squid ?= http://$(cache):3128
+push ?= 
 endif
 
 nothing:
@@ -99,9 +102,9 @@ publish:
 	$(push) docker push $(registry)/$(image)
 
 daemon:
-	$(MAKE) clean
-	$(MAKE) daemon-sshd
-	$(MAKE) daemon-ssh
+	$(make) clean
+	$(make) daemon-sshd
+	$(make) daemon-ssh
 
 daemon-sshd:
 	docker run -d -ti -v /vagrant:/vagrant --name $(service) -p :$(ssh_port) $(registry)/$(image)
@@ -110,19 +113,19 @@ daemon-sshd:
 
 daemon-ssh:
 	$(ssh_prefix) ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
+	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
-	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
+	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) service-ssh; }
 
 compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
-	$(MAKE) service-ssh
+	$(make) service-ssh
 
 down:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop $(opt)
@@ -134,11 +137,11 @@ credentials:
 	$(service_ssh_exec) -- mkdir -p /config/aws
 	$(service_ssh_exec) -- touch /config/aws/credentials
 	$(service_ssh_exec) -- chmod 600 /config/aws/credentials
-	imma credentials | $(MAKE) cat $(block) /config/aws/credentials
+	imma credentials | $(make) cat $(block) /config/aws/credentials
 
 shell:
-	@$(MAKE) daemon
-	@$(MAKE) ssh
+	@$(make) daemon
+	@$(make) ssh
 
 ssh:
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
@@ -155,8 +158,8 @@ enter-service:
 	docker exec -ti -u ubuntu $(service) bash -il -c 'cd; exec bash -il'
 
 home:
-	$(MAKE) reset-base daemon home-setup home-deploy
-	$(MAKE) image-update
+	$(make) reset-base daemon home-setup home-deploy
+	$(make) image-update
 	docker tag $(registry)/$(image) $(registry)/$(image)0
 
 home-setup:
@@ -182,18 +185,18 @@ remote:
 	$(remote_ssh_exec) -- make cache
 
 docker:
-	$(MAKE) reset daemon block-setup block-deploy
+	$(make) reset daemon block-setup block-deploy
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(service_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
-	$(MAKE) image-update
+	$(make) image-update
 
 image-update:
-	$(MAKE) block-update commit publish
-	$(MAKE) build-nc publish
-	$(MAKE) clean
+	$(make) block-update commit publish
+	$(make) build-nc publish
+	$(make) clean
 
 block-update:
 	$(service_ssh_exec) -- git pull
