@@ -26,15 +26,13 @@ ENV https_proxy http://${CACHE}:3128
 
 USER root
 
+RUN add-apt-repository ppa:git-core/ppa
 RUN apt-get update -y && apt-get install -y aptitude && aptitude upgrade -y
 
-RUN aptitude install -y net-tools sudo cloud-init
+RUN aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
+
 ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 RUN cloud-init init
-
-RUN aptitude install -y openssh-server && mkdir -p /var/run/sshd
-
-RUN aptitude install -y git curl unzip perl language-pack-en build-essential python ruby vim man screen tmux
 
 #        _                 _         
 #  _   _| |__  _   _ _ __ | |_ _   _ 
@@ -53,5 +51,7 @@ RUN mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys
 # |_|  \___/ \___/ \__|
 
 USER root
+
+RUN mkdir -p /var/run/sshd
 
 ENTRYPOINT exec /usr/sbin/sshd -De -p 2222
