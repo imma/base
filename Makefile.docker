@@ -116,7 +116,6 @@ service-ssh:
 	@echo trying $(service_ssh_exec) ...
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) service-ssh; }
-	$(service_ssh_exec) -- sudo chown ubuntu:ubuntu /data /config /vagrant
 
 compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
