@@ -107,7 +107,7 @@ daemon:
 	$(make) daemon-ssh
 
 daemon-sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(service) -p :$(ssh_port) $(registry)/$(image)
+	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
 	docker cp ~/.ssh/authorized_keys $(service):/home/ubuntu/.ssh/authorized_keys
 	docker exec $(service) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
