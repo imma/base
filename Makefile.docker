@@ -62,13 +62,17 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu-home
 
+ifeq (nc,$(firstword $(MAKECMDGOALS)))
+$(eval cache=)
+$(eval squid=)
+$(eval push=echo)
+endif
+
 nothing:
 	@true
 
 nc:
-$(eval cache=)
-$(eval squid=)
-$(eval push=echo)
+	@true
 
 reset-xenial:
 	docker pull ubuntu:xenial
