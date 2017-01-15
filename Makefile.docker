@@ -18,40 +18,32 @@ $(eval $(STATUS):;@:)
 endif
 
 ifeq (ssh,$(firstword $(MAKECMDGOALS)))
-SERVICE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+SERVICE := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(SERVICE):;@:)
-ifeq "$(strip $(SERVICE))" ""
-SERVICE := $(block)
 endif
-endif
-SERVICE ?= $(block)
 
 ifeq (cat,$(firstword $(MAKECMDGOALS)))
-SERVICE := $(wordlist 2,2,$(MAKECMDGOALS))
-FILE := $(wordlist 3,3,$(MAKECMDGOALS))
+SERVICE := $(strip $(wordlist 2,2,$(MAKECMDGOALS)))
+FILE := $(strip $(wordlist 3,3,$(MAKECMDGOALS)))
 $(eval $(SERVICE):;@:)
 $(eval $(FILE):;@:)
-ifeq "$(strip $(SERVICE))" ""
-SERVICE := $(block)
 endif
-endif
-SERVICE ?= $(block)
 
 ifeq (remote,$(firstword $(MAKECMDGOALS)))
 REMOTE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(REMOTE):;@:)
+	l
+endif
+SERVICE ?= $(block)
+ifeq "$(strip $(SERVICE))" ""
+SERVICE := $(block)
 endif
 
 SHELL = bash
-CACHE = $(CACHE_VIP)
 
 # ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
 ssh_port ?= 2222
-
-container = $(block)_block_1
-container_ssh_port = $(shell docker inspect $(container) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
-container_ssh_exec = $(ssh_prefix) ssh -A -p $(container_ssh_port) ubuntu@localhost
 
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
@@ -59,17 +51,24 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@localhost
 
 remote_ssh_exec = ssh -A $(REMOTE)
 
+cache ?= $(CACHE_VIP)
 registry ?= cache.nih
+squid ?= http://$(cache):3128
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
-env_cache = env http_proxy=http://$(CACHE):3128 https_proxy=http://$(CACHE):3128
+env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 # ^^ ssh_gateway=$(cache.nih) ssh_gateway_user=$(ssh_user)
 
 home = ubuntu-home
 
 nothing:
 	@true
+
+nc:
+$(eval cache=)
+$(eval squid=)
+$(eval push=echo)
 
 reset-xenial:
 	docker pull ubuntu:xenial
@@ -84,13 +83,13 @@ reset:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg CACHE="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg CACHE="$(cache)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 build-nc:
-	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(CACHE)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
 
 commit:
-	docker commit $(container) $(registry)/$(image) $(opt)
+	docker commit $(service) $(registry)/$(image) $(opt)
 
 publish:
 	$(push) docker push $(registry)/$(image)
@@ -101,13 +100,13 @@ daemon:
 	$(MAKE) daemon-ssh
 
 daemon-sshd:
-	docker run -d -ti -v /vagrant:/vagrant --name $(container) -p :$(ssh_port) $(registry)/$(image)
-	docker cp ~/.ssh/authorized_keys $(container):/home/ubuntu/.ssh/authorized_keys
-	docker exec $(container) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
+	docker run -d -ti -v /vagrant:/vagrant --name $(service) -p :$(ssh_port) $(registry)/$(image)
+	docker cp ~/.ssh/authorized_keys $(service):/home/ubuntu/.ssh/authorized_keys
+	docker exec $(service) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
-	$(ssh_prefix) ssh-keygen -R '[localhost]:$(container_ssh_port)' 2>/dev/null
-	$(container_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
+	$(ssh_prefix) ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
+	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(MAKE) daemon-ssh; }
 
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
@@ -147,7 +146,7 @@ cat:
 	@ssh -p $(service_ssh_port) ubuntu@localhost tee $(FILE)
 
 enter:
-	docker exec -ti -u ubuntu $(container) bash -il -c 'cd; exec bash -il'
+	docker exec -ti -u ubuntu $(service) bash -il -c 'cd; exec bash -il'
 
 enter-service:
 	docker exec -ti -u ubuntu $(service) bash -il -c 'cd; exec bash -il'
@@ -158,16 +157,16 @@ home:
 	docker tag $(registry)/$(image) $(registry)/$(image)0
 
 home-setup:
-	echo "Host *" | $(container_ssh_exec) -- tee .ssh/config
-	echo "StrictHostKeyChecking no" | $(container_ssh_exec) -- tee -a .ssh/config
+	echo "Host *" | $(service_ssh_exec) -- tee .ssh/config
+	echo "StrictHostKeyChecking no" | $(service_ssh_exec) -- tee -a .ssh/config
 
 home-deploy:
-	$(container_ssh_exec) -- $(env_cache) git clone $(shell git config --local remote.origin.url) home
-	$(container_ssh_exec) -- mv home/.git .
-	$(container_ssh_exec) -- rm -rf home
-	$(container_ssh_exec) -- git reset --hard
-	$(container_ssh_exec) -- $(env_cache) script/cibuild
-	$(container_ssh_exec) -- make cache
+	$(service_ssh_exec) -- $(env_cache) git clone $(shell git config --local remote.origin.url) home
+	$(service_ssh_exec) -- mv home/.git .
+	$(service_ssh_exec) -- rm -rf home
+	$(service_ssh_exec) -- git reset --hard
+	$(service_ssh_exec) -- $(env_cache) script/cibuild
+	$(service_ssh_exec) -- make cache
 
 remote:
 	echo "Host *" | $(remote_ssh_exec) -- tee .ssh/config
@@ -183,7 +182,7 @@ docker:
 	$(MAKE) reset daemon block-setup block-deploy
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(container_ssh_exec) -- tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ], run: { "\($$block)": {} } }' | $(service_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
 	$(MAKE) image-update
@@ -194,33 +193,36 @@ image-update:
 	$(MAKE) clean
 
 block-update:
-	$(container_ssh_exec) -- git pull
-	$(container_ssh_exec) -- block clone
-	$(container_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(container_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
-	$(container_ssh_exec) -- block clone
-	$(container_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
-	$(container_ssh_exec) -- block clone
-	$(container_ssh_exec) -- block bootstrap
-	$(container_ssh_exec) -- make cache
-	$(container_ssh_exec) -- rm -f service/$(home)
-	$(container_ssh_exec) -- block compile service
-	if test -x script/server; then $(container_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
+	$(service_ssh_exec) -- git pull
+	$(service_ssh_exec) -- block clone
+	$(service_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(service_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
+	$(service_ssh_exec) -- block clone
+	$(service_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
+	$(service_ssh_exec) -- block clone
+	echo "### [ cache = $(cache) ]"
+	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
+	$(service_ssh_exec) -- block bootstrap
+	$(service_ssh_exec) -- make cache
+	$(service_ssh_exec) -- rm -f service/$(home)
+	$(service_ssh_exec) -- block compile service
+	if test -x script/server; then $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
+	if test -z "$(cache)"; then $(service_ssh_exec) -- home enable cache; fi
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
 	docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc)
 
 clean:
-	docker rm -f $(container) 2>/dev/null || true
+	docker rm -f $(service) 2>/dev/null || true
 
 stop:
-	@docker exec $(container) sv stop ./service/$(STOP)
+	@docker exec $(service) sv stop ./service/$(STOP)
 
 start:
-	@docker exec $(container) sv start ./service/$(START)
+	@docker exec $(service) sv start ./service/$(START)
 
 status:
-	@docker exec $(container) sv status ./service/$(STATUS)
+	@docker exec $(service) sv status ./service/$(STATUS)
 
 ps:
 	@$(docker_compose) ps
