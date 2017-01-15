@@ -138,7 +138,7 @@ credentials:
 
 shell:
 	@$(MAKE) daemon
-	@$(MAKE) ssh block
+	@$(MAKE) ssh
 
 ssh:
 	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
