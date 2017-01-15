@@ -28,7 +28,7 @@ USER root
 
 RUN apt-get update -y
 RUN apt-get install -y software-properties-common python-software-properties aptitude
-RUN add-apt-repository ppa:git-core/ppa
+RUN env - add-apt-repository ppa:git-core/ppa
 RUN aptitude update -y && aptitude upgrade -y
 RUN aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
 
