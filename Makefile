@@ -1,5 +1,7 @@
 include Makefile.docker
 
+docker_default = docker-image
+
 docker-image:
 	time $(make) reset-xenial build publish
 
