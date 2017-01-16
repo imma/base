@@ -184,7 +184,12 @@ remote:
 	$(remote_ssh_exec) -- script/cibuild
 	$(remote_ssh_exec) -- make cache
 
+docker_default = docker-block
+
 docker:
+	$(make) $(docker_default)
+
+docker-block:
 	$(make) reset daemon block-setup block-deploy
 
 block-setup:
