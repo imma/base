@@ -57,18 +57,16 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu-home
 
-make = $(MAKE) cache=$(cache) squid=$(squid) push=$(push)
+make = $(MAKE) cache=$(cache) squid=$(squid)
 
 registry ?= cache.nih
 
 ifeq (nc,$(firstword $(MAKECMDGOALS)))
 cache=
 squid=
-push=echo
 else
 cache ?= $(shell ping -c 1 -t 1 cache.nih | awk '$$1 == "PING" { print $$3 }' | perl -pe 's{[():]}{}g')
 squid ?= http://$(cache):3128
-push ?= 
 endif
 
 nothing:
@@ -80,7 +78,6 @@ nc:
 reset-xenial:
 	docker pull ubuntu:xenial
 	docker tag ubuntu:xenial $(registry)/block:xenial
-	$(push) docker push $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
 
 reset-base:
@@ -99,7 +96,7 @@ commit:
 	docker commit $(service) $(registry)/$(image) $(opt)
 
 publish:
-	$(push) docker push $(registry)/$(image)
+	docker push $(registry)/$(image)
 
 daemon:
 	$(make) clean
