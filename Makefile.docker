@@ -65,7 +65,7 @@ ifeq (nc,$(firstword $(MAKECMDGOALS)))
 cache=
 squid=
 else
-cache ?= $(shell ping -c 1 -t 1 cache.nih | awk '$$1 == "PING" { print $$3 }' | perl -pe 's{[():]}{}g')
+cache ?= cache.nih
 squid ?= http://$(cache):3128
 endif
 
