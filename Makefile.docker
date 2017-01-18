@@ -130,12 +130,6 @@ down:
 destroy:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans $(opt)
 
-credentials:
-	$(service_ssh_exec) -- mkdir -p /config/aws
-	$(service_ssh_exec) -- touch /config/aws/credentials
-	$(service_ssh_exec) -- chmod 600 /config/aws/credentials
-	imma credentials | $(make) cat $(block) /config/aws/credentials
-
 shell:
 	@$(make) daemon
 	@$(make) ssh
