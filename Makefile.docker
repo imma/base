@@ -65,7 +65,7 @@ ifeq (nc,$(firstword $(MAKECMDGOALS)))
 cache=
 squid=
 else
-cache ?= cache.nih
+cache ?= $(CACHE_VIP)
 squid ?= http://$(cache):3128
 endif
 
