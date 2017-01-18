@@ -109,12 +109,14 @@ daemon-sshd:
 	docker exec $(service) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
-	$(ssh_prefix) ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
+	@$(ssh_prefix) ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	@$(ssh_prefix) ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
-	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null
+	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) service-ssh; }
 
 compose:
@@ -135,12 +137,13 @@ shell:
 	@$(make) ssh
 
 ssh:
-	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>&1 1>/dev/null
-	@@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>&1 >/dev/null
-	@ssh -t -A -p $(service_ssh_port) ubuntu@localhost || true
+	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null 1>/dev/null
+	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null
+	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null >/dev/null
+	@ssh -t -A -p $(service_ssh_port) ubuntu@$(CACHE_VIP) || true
 
 cat:
-	@ssh -p $(service_ssh_port) ubuntu@localhost tee $(FILE)
+	@ssh -p $(service_ssh_port) ubuntu@$(CACHE_VIP) tee $(FILE)
 
 enter:
 	docker exec -ti -u ubuntu $(service) bash -il -c 'cd; exec bash -il'
