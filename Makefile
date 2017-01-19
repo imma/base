@@ -3,10 +3,10 @@ include Makefile.docker
 docker_default = docker-image
 
 docker-image:
-	time $(make) reset-xenial build
+	time $(make) nc reset-xenial build
 
 docker-update:
-	time $(make) clean daemon build
+	time $(make) nc clean daemon build
 
 docker-bump:
 	$(make) bump
