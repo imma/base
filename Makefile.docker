@@ -35,6 +35,11 @@ $(eval $(REBUILD):;@:)
 endif
 REBUILD ?= app
 
+SERVICE ?= $(block)
+ifeq "$(strip $(SERVICE))" ""
+SERVICE := $(block)
+endif
+
 SHELL = bash
 
 # ssh_prefix = ssh -A defn@172.28.128.1
@@ -44,6 +49,9 @@ ssh_port ?= 2222
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@$(CACHE_VIP)
+
+meh:
+	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort'
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
@@ -104,13 +112,11 @@ daemon-sshd:
 	docker exec $(service) sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/authorized_keys
 
 daemon-ssh:
-	@$(ssh_prefix) ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	@$(ssh_prefix) ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
-	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) service-ssh; }
 
@@ -132,7 +138,6 @@ shell:
 	@$(make) ssh
 
 ssh:
-	@ssh-keygen -R '[localhost]:$(service_ssh_port)' 2>/dev/null 1>/dev/null
 	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null >/dev/null
 	@ssh -t -A -p $(service_ssh_port) ubuntu@$(CACHE_VIP) || true
