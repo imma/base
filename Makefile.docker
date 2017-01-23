@@ -161,7 +161,6 @@ home-deploy:
 	$(service_ssh_exec) -- rm -rf home
 	$(service_ssh_exec) -- git reset --hard
 	$(service_ssh_exec) -- $(env_cache) script/cibuild
-	$(service_ssh_exec) -- git checkout .ssh/config
 	$(service_ssh_exec) -- make cache
 
 docker_default = docker-block
