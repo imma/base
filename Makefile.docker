@@ -29,15 +29,6 @@ $(eval $(SERVICE):;@:)
 $(eval $(FILE):;@:)
 endif
 
-ifeq (remote,$(firstword $(MAKECMDGOALS)))
-REMOTE := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-$(eval $(REMOTE):;@:)
-endif
-SERVICE ?= $(block)
-ifeq "$(strip $(SERVICE))" ""
-SERVICE := $(block)
-endif
-
 ifeq (rebuild,$(firstword $(MAKECMDGOALS)))
 REBUILD := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(REBUILD):;@:)
@@ -53,8 +44,6 @@ ssh_port ?= 2222
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) ubuntu@$(CACHE_VIP)
-
-remote_ssh_exec = ssh -A $(REMOTE)
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
 
@@ -172,17 +161,8 @@ home-deploy:
 	$(service_ssh_exec) -- rm -rf home
 	$(service_ssh_exec) -- git reset --hard
 	$(service_ssh_exec) -- $(env_cache) script/cibuild
+	$(service_ssh_exec) -- git checkout .ssh/config
 	$(service_ssh_exec) -- make cache
-
-remote:
-	echo "Host *" | $(remote_ssh_exec) -- tee .ssh/config
-	echo "StrictHostKeyChecking no" | $(remote_ssh_exec) -- tee -a .ssh/config
-	$(remote_ssh_exec) -- git clone $(shell git config --local remote.origin.url) home
-	$(remote_ssh_exec) -- mv home/.git .
-	$(remote_ssh_exec) -- rm -rf home
-	$(remote_ssh_exec) -- git reset --hard
-	$(remote_ssh_exec) -- script/cibuild
-	$(remote_ssh_exec) -- make cache
 
 docker_default = docker-block
 
