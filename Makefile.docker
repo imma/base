@@ -121,6 +121,8 @@ daemon-ssh:
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
 	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
+	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
 	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) service-ssh; }
 
 compose:
