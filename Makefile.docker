@@ -170,8 +170,16 @@ home-deploy:
 
 docker_default = docker-block
 
+BLOCK_GIT ?= block
+
 docker:
+	$(make) docker-$(BLOCK_KIT)
+
+docker-block:
 	$(make) $(docker_default)
+
+docker-kit:
+	source ../block/script/profile $(PWD) && $(make) $(docker_default)
 
 docker-block:
 	$(make) reset daemon block-setup block-deploy
