@@ -173,12 +173,12 @@ docker_default = docker-block
 BLOCK_GIT ?= block
 
 docker:
-	$(make) docker-$(BLOCK_KIT)
+	$(make) docker-is-$(BLOCK_KIT)
 
-docker-block:
+docker-is-block:
 	$(make) $(docker_default)
 
-docker-kit:
+docker-is-kit:
 	source ../block/script/profile $(PWD) && $(make) $(docker_default)
 
 docker-block:
