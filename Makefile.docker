@@ -170,7 +170,7 @@ home-deploy:
 
 docker_default = docker-block
 
-BLOCK_GIT ?= block
+BLOCK_KIT ?= block
 
 docker:
 	$(make) docker-is-$(BLOCK_KIT)
