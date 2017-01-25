@@ -56,7 +56,7 @@ service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) $(ssh_remote_user
 meh:
 	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort'
 
-docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) docker-compose -f compose.json
+docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 # ^^ ssh_gateway=$(cache.nih) ssh_gateway_user=$(ssh_user)
