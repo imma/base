@@ -147,6 +147,7 @@ ssh:
 	ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null
 	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
 	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
+	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null >/dev/null
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(CACHE_VIP) || true
 
