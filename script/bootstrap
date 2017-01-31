@@ -11,7 +11,7 @@ function main {
       sudo env - add-apt-repository ppa:git-core/ppa
       sudo -E aptitude update -y && aptitude upgrade -y
       sudo -E aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
-      sudo aptitude purge nano
+      sudo aptitude purge -y nano
       ;;
   esac
 }
