@@ -6,6 +6,7 @@ function main {
 
   case "$(uname -s)" in
     Linux)
+      export DEBIAN_FRONTEND=noninteractive
       sudo -E apt-get install -y software-properties-common python-software-properties aptitude
       sudo env - add-apt-repository ppa:git-core/ppa
       sudo -E aptitude update -y && aptitude upgrade -y
