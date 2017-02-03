@@ -45,7 +45,6 @@ SHELL = bash
 NET_SUBNET ?= 172.28.130
 NET_PREFIX ?= 172.28.131
 
-# ssh_prefix = ssh -A defn@172.28.128.1
 ssh_user ?= $(LOGNAME)
 ssh_port ?= 2222
 
@@ -62,13 +61,13 @@ meh:
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
-# ^^ ssh_gateway=$(cache.nih) ssh_gateway_user=$(ssh_user)
 
 home = ubuntu-home
 
 make = $(MAKE) cache=$(cache) squid=$(squid)
 
-registry ?= cache.nih
+hub ?= defn
+registry ?= docker.nih
 
 ifeq (nc,$(firstword $(MAKECMDGOALS)))
 cache=
@@ -272,7 +271,7 @@ rebuild-all:
 	cat compose.json | jq -r '.services | keys[]' | grep -v ubuntu-home | runmany '$(make) rebuild $$1 || true'
 
 local:
-	docker images | grep defn/block | awk '{print $$2}' | runmany 'docker tag defn/block:$$1 cache.nih/block:$$1 && docker rmi defn/block:$$1'
+	docker images | grep $(hub)/block | awk '{print $$2}' | runmany 'docker tag $(hub)/block:$$1 $(registry)/block:$$1 && docker rmi $(hub)/block:$$1'
 
 download:
-	cat compose.json | jq -r '.services | keys[]' | runmany 'docker pull defn/block:$$1'
+	cat compose.json | jq -r '.services | keys[]' | runmany 'docker pull $(hub)/block:$$1'
