@@ -35,6 +35,8 @@ RUN aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip 
 ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 RUN cloud-init init
 
+ADD etc/rc.local /etc/rc.local
+
 #        _                 _         
 #  _   _| |__  _   _ _ __ | |_ _   _ 
 # | | | | '_ \| | | | '_ \| __| | | |
