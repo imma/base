@@ -57,4 +57,4 @@ USER root
 
 RUN mkdir -p /var/run/sshd
 
-ENTRYPOINT exec /usr/sbin/sshd -De -p 2222
+CMD /usr/sbin/sshd -De -p 2222
