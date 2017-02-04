@@ -216,7 +216,7 @@ block-update:
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(service_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
 	$(service_ssh_exec) -- block clone
-	$(service_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git pull'"
+	$(service_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git checkout master && git pull'"
 	$(service_ssh_exec) -- block clone
 	echo "### [ cache = $(cache) ]"
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
@@ -226,14 +226,13 @@ block-update:
 	$(service_ssh_exec) -- block compile service
 	if test -x script/server; then $(service_ssh_exec) -- block compile service $(block); fi
 	if test -x script/server; then $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
-	cat Blockfile.json | jq -r '.run//{} | keys[]'
-	cat Blockfile.json | jq -r '.run//{} | keys[]' | runmany '$(service_ssh_exec) -- block compile service nginx'
-	cat Blockfile.json | jq -r '.run//{} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
+	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1'
+	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home enable cache; fi
 
 prune:
-	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | xargs -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
-	docker rmi $(shell docker images --filter "dangling=true" -q --no-trunc)
+	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | gxargs -r -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
+	docker images --filter "dangling=true" -q --no-trunc | gxargs -r docker rmi
 
 clean:
 	docker rm -f $(service) 2>/dev/null || true
