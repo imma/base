@@ -11,5 +11,7 @@
 #
 # By default this script does nothing.
 
-route add -net 172.28.129.0 netmask 255.255.255.0 gw 172.28.131.3
+if [[ -x /config/etc/rc.local ]]; then
+  /config/etc/rc.local
+fi
 exit 0
