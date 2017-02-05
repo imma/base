@@ -11,7 +11,7 @@
 #
 # By default this script does nothing.
 
-if [[ -x /config/etc/rc.local ]]; then
+if [ -x /config/etc/rc.local ]; then
   /config/etc/rc.local
 fi
 exit 0
