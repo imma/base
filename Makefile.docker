@@ -277,3 +277,8 @@ local:
 
 download:
 	cat compose.json | jq -r '.services | keys[]' | runmany 'docker pull $(hub)/block:$$1'
+
+upload:
+	cat compose.json | jq -r '.services | keys[]' | runmany 'docker tag {$(registry),$(hub)}/block:$$1; docker push $(hub)/block:$$1'
+
+
