@@ -68,13 +68,12 @@ make = $(MAKE) cache=$(cache) squid=$(squid)
 
 hub ?= defn
 registry ?= docker.nih
+cache ?= cache.nih
+squid ?= http://$(cache):3128
 
 ifeq (nc,$(firstword $(MAKECMDGOALS)))
 cache=
 squid=
-else
-cache ?= $(CACHE_VIP)
-squid ?= http://$(cache):3128
 endif
 
 nothing:
