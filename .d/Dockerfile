@@ -5,6 +5,9 @@ ARG CACHE
 
 USER root
 
+ENV http_proxy http://${CACHE}:3128
+ENV https_proxy http://${CACHE}:3128
+
 RUN apt-get update -y
 RUN apt-get install -y software-properties-common python-software-properties aptitude
 RUN env - add-apt-repository ppa:git-core/ppa
