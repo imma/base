@@ -45,6 +45,8 @@ SHELL = bash
 NET_SUBNET ?= 172.28.130
 NET_PREFIX ?= 172.28.131
 
+ssh_vip ?= 172.28.128.250
+
 ssh_user ?= $(LOGNAME)
 ssh_port ?= 2222
 
@@ -53,7 +55,7 @@ ssh_remote_home ?= /home/ubuntu
 
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
-service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) $(ssh_remote_user)@$(CACHE_VIP)
+service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
 
 meh:
 	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort'
@@ -116,12 +118,12 @@ daemon-sshd:
 	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
 
 daemon-ssh:
-	@$(ssh_prefix) ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@echo trying $(service_ssh_exec) ...
-	@ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	@ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
 	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
 	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
@@ -145,15 +147,15 @@ shell:
 	@$(make) ssh
 
 ssh:
-	ssh-keygen -R '[$(CACHE_VIP)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null || true
+	ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null || true
 	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
 	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
 	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null >/dev/null
-	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(CACHE_VIP) || true
+	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
-	@ssh -p $(service_ssh_port) $(ssh_remote_user)@$(CACHE_VIP) tee $(FILE)
+	@ssh -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) tee $(FILE)
 
 enter:
 	docker exec -ti -u $(ssh_remote_user) $(service) bash -il -c 'cd; exec bash -il'
