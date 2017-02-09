@@ -214,7 +214,6 @@ block-update:
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- block runmany 8 "'cd \$$1 && pwd && git checkout master && git pull'"
 	$(service_ssh_exec) -- block clone
-	echo "### [ cache = $(cache) ]"
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
 	$(service_ssh_exec) -- block bootstrap
 	$(service_ssh_exec) -- make cache
