@@ -8,10 +8,9 @@ function main {
     Linux)
       set -x
       export DEBIAN_FRONTEND=noninteractive
-      sudo -E apt-get install -y software-properties-common python-software-properties aptitude
+      sudo -E apt-get install -y software-properties-common python-software-properties aptitude git
       sudo env - add-apt-repository -y ppa:git-core/ppa
       sudo -E aptitude update -y && sudo -E aptitude upgrade -y
-      sudo -E aptitude install -y git
       sudo -E aptitude install -y net-tools sudo cloud-init openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
       sudo aptitude purge -y nano
       ;;
