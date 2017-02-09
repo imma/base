@@ -8,9 +8,5 @@ docker-image:
 docker-update:
 	time $(make) clean daemon build
 
-docker-bump:
-	$(make) bump
-	git add .serial
-	git commit -m "bump to $(shell cat .serial)"
-	git push
-	$(make) docker
+virtualbox:
+	time plan rebase
