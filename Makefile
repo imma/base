@@ -9,4 +9,4 @@ docker-update:
 	time $(make) clean daemon build
 
 virtualbox:
-	time plane rebase
+	time env http_proxy=$(http_proxy) plane rebase
