@@ -9,4 +9,4 @@ docker-update:
 	time $(make) clean daemon build
 
 virtualbox:
-	time plan rebase
+	time plane rebase
