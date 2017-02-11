@@ -25,4 +25,5 @@ USER root
 
 RUN mkdir -p /var/run/sshd
 
-CMD /usr/sbin/sshd -De -p 2222
+ENTRYPOINT [ "/usr/sbin/sshd", "-De" ]
+CMD [ "-p", "2222" ]
