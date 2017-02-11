@@ -26,6 +26,8 @@ write_files:
        Acquire::Languages "none";
 
 packages:
+ - software-properties-common 
+ - python-software-properties
  - openssh-server
  - aptitude
 
@@ -35,5 +37,9 @@ runcmd:
   - "systemctl disable apt-daily.timer"
   - "systemctl disable cron"
   - "systemctl disable anacron"
+  - "env - add-apt-repository -y ppa:git-core/ppa"
+  - "env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable"
+  - "aptitude update -y && sudo -E aptitude upgrade -y"
+  - " aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux"
 
 --===============88888888888888888888888888==

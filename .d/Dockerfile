@@ -14,7 +14,6 @@ RUN env - add-apt-repository -y ppa:git-core/ppa
 RUN env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
 RUN aptitude update -y && aptitude upgrade -y
 RUN aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
-RUN aptitude purge -y nano
 
 ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 RUN cloud-init init
