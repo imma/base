@@ -10,9 +10,11 @@ ENV https_proxy http://${CACHE}:3128
 
 RUN apt-get update -y
 RUN apt-get install -y software-properties-common python-software-properties aptitude
-RUN env - add-apt-repository ppa:git-core/ppa
-RUN aptitude update && aptitude upgrade -y
+RUN env - add-apt-repository -y ppa:git-core/ppa
+RUN env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
+RUN aptitude update -y && aptitude upgrade -y
 RUN aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
+RUN aptitude purge -y nano
 
 ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 RUN cloud-init init

@@ -6,14 +6,7 @@ function main {
 
   case "$(uname -s)" in
     Linux)
-      set -x
-      export DEBIAN_FRONTEND=noninteractive
-      sudo -E apt-get install -y software-properties-common python-software-properties aptitude git
-      sudo env - add-apt-repository -y ppa:git-core/ppa
-      sudo env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
-      sudo -E aptitude update -y && sudo -E aptitude upgrade -y
-      sudo -E aptitude install -y net-tools sudo cloud-init openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
-      sudo aptitude purge -y nano
+      "$shome/script/first.sh"
       ;;
   esac
 }
