@@ -1,3 +1,4 @@
+include Makefile.dream
 include Makefile.docker
 
 docker_default = docker-image
@@ -10,3 +11,4 @@ docker-update:
 
 virtualbox:
 	time env http_proxy=$(cache_vip) plane rebase
+
