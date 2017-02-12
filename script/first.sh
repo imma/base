@@ -3,25 +3,28 @@
 function main {
   set -exfu
 
-  if systemctl 2>&1 >/dev/null; then
-    while true; do
-      case "$(echo | "$@" systemctl is-active cloud-final.service)" in
-        active|failed) break ;;
-        *) echo "Waiting for cloud-init"; sleep 5 ;;
-      esac
-    done
-  fi
+  case "$(uname -s)" in
+    Linux)
+      if systemctl 2>&1 >/dev/null; then
+        while true; do
+          case "$(echo | "$@" systemctl is-active cloud-final.service)" in
+            active|failed) break ;;
+            *) echo "Waiting for cloud-init"; sleep 5 ;;
+          esac
+        done
+      fi
 
-  export DEBIAN_FRONTEND=noninteractive 
+      export DEBIAN_FRONTEND=noninteractive 
 
-  dpkg --remove-architecture i386
+      dpkg --remove-architecture i386
 
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get install -y software-properties-common python-software-properties openssh-server aptitude
-  env - add-apt-repository -y ppa:git-core/ppa
-  env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
-  aptitude update -y && sudo -E aptitude upgrade -y
-  aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get install -y software-properties-common python-software-properties openssh-server aptitude
+      env - add-apt-repository -y ppa:git-core/ppa
+      env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
+      aptitude update -y && sudo -E aptitude upgrade -y
+      aptitude install -y net-tools sudo cloud-init git openssh-server curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
+      aptitude install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool unzip
 }
 
 main "$@"
