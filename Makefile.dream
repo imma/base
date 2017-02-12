@@ -5,7 +5,7 @@ all: cidata.iso
 	@mkdir -p .ssh
 	@ssh-keygen -f $@ -P '' -C "provision@$(shell uname -n)"
 
-cidata/user-data: .ssh/ssh-container
+cidata/user-data: .ssh/ssh-container cidata/user-data.template
 	mkdir -p cidata
 	cat cidata/user-data.template | env CONTAINER_SSH_KEY="$(shell cat .ssh/ssh-container.pub)" envsubst '$$USER $$CONTAINER_SSH_KEY $$CACHE_VIP' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
