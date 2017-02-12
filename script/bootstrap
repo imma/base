@@ -6,7 +6,7 @@ function main {
 
   case "$(uname -s)" in
     Linux)
-      "$shome/script/first.sh"
+      sudo "$shome/script/first.sh"
       ;;
   esac
 }
