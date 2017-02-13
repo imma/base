@@ -36,6 +36,5 @@ runcmd:
   - "aptitude install -y net-tools sudo cloud-init dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux"
   - "aptitude install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool"
   - "mkdir -p /var/run/sshd"
-  - "sudo -u ubuntu -c 'ssh -o StrictHostKeyChecking=no github.com true'"
 
 --===============88888888888888888888888888==
