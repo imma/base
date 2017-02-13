@@ -26,6 +26,7 @@ write_files:
        Acquire::Languages "none";
 
 runcmd:
+  - "apt-get update"
   - "dpkg --remove-architecture i386"
   - "apt-get install -y software-properties-common python-software-properties openssh-server aptitude"
   - "env - add-apt-repository -y ppa:git-core/ppa"
