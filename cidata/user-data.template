@@ -25,12 +25,6 @@ write_files:
        Acquire::http::Proxy "http://cache.nih:3128";
        Acquire::Languages "none";
 
-packages:
- - software-properties-common 
- - python-software-properties
- - openssh-server
- - aptitude
-
 runcmd:
   - "dpkg --remove-architecture i386"
   - "apt-get install -y software-properties-common python-software-properties openssh-server aptitude"
@@ -38,7 +32,7 @@ runcmd:
   - "env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable"
   - "aptitude purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core"
   - "aptitude update -y && sudo -E aptitude upgrade -y"
-  - "aptitude install -y net-tools sudo cloud-init git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux"
+  - "aptitude install -y net-tools sudo cloud-init resolvconf dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux"
   - "aptitude install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool"
 
 --===============88888888888888888888888888==
