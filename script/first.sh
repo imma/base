@@ -5,9 +5,9 @@ function main {
 
   case "$(uname -s)" in
     Linux)
-      if systemctl 2>&1 >/dev/null; then
+      if "$@" systemctl 2>&1 >/dev/null; then
         while true; do
-          case "$(echo | "$@" systemctl is-active cloud-final.service)" in
+          case "$(echo | "$@" systemctl is-active cloud-final.service || true)" in
             active|failed) break ;;
             *) echo "Waiting for cloud-init"; sleep 5 ;;
           esac
