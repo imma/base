@@ -1,4 +1,4 @@
-all: cidata.iso
+all: cidata.iso .d/cidata/user-data .d/cidata/meta-data
 	@true
 
 .ssh/ssh-container:
@@ -20,3 +20,10 @@ cidata.iso: cidata/user-data cidata/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata
 	mv $@.tmp $@
 
+.d/cidata/user-data: cidata/user-data
+	mkdir -p .d/cidata
+	cp "$<" "$@"
+
+.d/cidata/meta-data: cidata/meta-data
+	mkdir -p .d/cidata
+	cp "$<" "$@"
