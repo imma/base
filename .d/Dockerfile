@@ -12,7 +12,7 @@ ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 ADD cidata/user-data /var/lib/cloud/seed/nocloud/user-data
 ADD cidata/meta-data /var/lib/cloud/seed/nocloud/meta-data
 RUN apt-get update
-RUN apt-get install -y cloud-init
+RUN apt-get install -y cloud-init sudo
 RUN cloud-init init
 RUN cloud-init modules
 RUN cloud-init modules -m final
