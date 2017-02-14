@@ -4,9 +4,11 @@ include Makefile.docker
 docker_default = docker-image
 
 docker-image:
+	$(MAKE)
 	time $(make) reset-xenial build
 
 docker-update:
+	$(MAKE)
 	time $(make) clean daemon build
 
 virtualbox:
