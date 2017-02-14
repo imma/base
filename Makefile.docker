@@ -140,7 +140,6 @@ shell:
 	@$(make) ssh
 
 ssh:
-	$(MAKE) copy_personal
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
