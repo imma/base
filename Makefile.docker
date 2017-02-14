@@ -105,6 +105,11 @@ commit:
 publish:
 	docker push $(registry)/$(image)
 
+copy_personal:
+	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
+	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
+	tar cf - -C ~ .gitconfig .ssh/authorized_keys | $(service_ssh_exec) -o StrictHostKeyChecking=no -- tar xvf -
+
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
@@ -112,20 +117,15 @@ daemon:
 
 daemon-sshd:
 	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
 
 daemon-ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
+	$(MAKE) copy_personal
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
-	@echo trying $(service_ssh_exec) ...
-	@ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
-	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
-	@$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) service-ssh; }
+	$(MAKE) copy_personal
+	@$(service_ssh_exec) -- true || { sleep 1; $(make) service-ssh; }
 
 compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
@@ -145,11 +145,7 @@ shell:
 	@$(make) ssh
 
 ssh:
-	ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null 1>/dev/null || true
-	docker exec $(service) mkdir -p $(ssh_remote_home)/.ssh
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh/authorized_keys
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null >/dev/null
+	$(MAKE) copy_personal
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
@@ -206,6 +202,7 @@ image-update:
 	$(make) clean
 
 block-update:
+	cat ~/.gitconfig | $(service_ssh_exec) -- tee .gitconfig
 	$(service_ssh_exec) -- git pull
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(service_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
@@ -222,6 +219,7 @@ block-update:
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1'
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home enable cache; fi
+	$(service_ssh_exec) -- rm -f .gitconfig
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | gxargs -r -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
