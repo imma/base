@@ -17,14 +17,6 @@ users:
 
 manage_etc_hosts: true
 
-write_files:
- - owner: root:root
-   path: /etc/apt/apt.conf.d/99boxcache
-   permissions: '0644'
-   content: |
-       Acquire::http::Proxy "http://cache.nih:3128";
-       Acquire::Languages "none";
-
 runcmd:
   - "apt-get update"
   - "dpkg --remove-architecture i386"
