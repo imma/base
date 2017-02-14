@@ -58,9 +58,6 @@ service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
 
-meh:
-	docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort'
-
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
@@ -106,13 +103,13 @@ publish:
 	docker push $(registry)/$(image)
 
 copy_personal:
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
 	tar cf - -C ~ .gitconfig .ssh/authorized_keys | $(service_ssh_exec) -o StrictHostKeyChecking=no -- tar xvf -
 
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
+	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
+	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
 	$(make) daemon-ssh
 
 daemon-sshd:
@@ -120,11 +117,9 @@ daemon-sshd:
 
 daemon-ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
-	$(MAKE) copy_personal
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
-	$(MAKE) copy_personal
 	@$(service_ssh_exec) -- true || { sleep 1; $(make) service-ssh; }
 
 compose:
