@@ -46,7 +46,7 @@ NET_SUBNET ?= 172.28.130
 NET_PREFIX ?= 172.28.131
 
 cache_vip ?= 172.28.28.1
-ssh_vip ?= 172.28.28.250
+ssh_vip ?= 172.28.29.250
 
 ssh_user ?= $(LOGNAME)
 ssh_port ?= 2222
