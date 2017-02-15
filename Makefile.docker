@@ -127,6 +127,7 @@ compose:
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
+	$(make) copy-personal
 	$(make) service-ssh
 
 down:
@@ -140,6 +141,7 @@ shell:
 	@$(make) ssh
 
 ssh:
+	$(make) copy-personal
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
