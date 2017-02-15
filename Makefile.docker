@@ -102,7 +102,7 @@ commit:
 publish:
 	docker push $(registry)/$(image)
 
-copy_personal:
+copy-personal:
 	tar cf - -C ~ .gitconfig .ssh/authorized_keys | $(service_ssh_exec) -o StrictHostKeyChecking=no -- tar xvf -
 
 daemon:
