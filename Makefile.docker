@@ -110,7 +110,8 @@ copy-personal:
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
-	$(make) copy-personal
+	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
+	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
 	$(make) daemon-ssh
 
 daemon-sshd:
