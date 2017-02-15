@@ -103,13 +103,14 @@ publish:
 	docker push $(registry)/$(image)
 
 copy-personal:
+	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
+	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
 	tar cf - -C ~ .gitconfig .ssh/authorized_keys | $(service_ssh_exec) -o StrictHostKeyChecking=no -- tar xvf -
 
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
+	$(make) copy-personal
 	$(make) daemon-ssh
 
 daemon-sshd:
