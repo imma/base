@@ -118,7 +118,6 @@ daemon-sshd:
 	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
 
 daemon-ssh:
-	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
@@ -129,8 +128,6 @@ compose:
 
 up:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
-	$(make) copy-personal
-	$(make) service-ssh
 
 down:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop $(opt)
@@ -143,6 +140,7 @@ shell:
 	@$(make) ssh
 
 ssh:
+	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	$(make) copy-personal
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
