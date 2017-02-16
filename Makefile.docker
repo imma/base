@@ -1,6 +1,10 @@
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
 block := $(shell basename $(shell echo $(PWD)))
 image = block:$(block)
+version = $(shell git rev-parse --abbrev-ref HEAD)
+ifeq (HEAD,$(version))
+version = $(shell git rev-parse HEAD)
+endif
 
 ifeq (stop,$(firstword $(MAKECMDGOALS)))
 STOP := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
@@ -182,7 +186,7 @@ docker-block:
 	$(make) reset daemon block-setup block-deploy
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) '{ require: [ "\($$org)/\($$block)" ] }' | $(service_ssh_exec) -- tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ] }' | $(service_ssh_exec) -- tee Blockfile.json.site
 
 block-deploy:
 	$(make) image-update
