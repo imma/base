@@ -3,6 +3,10 @@
 function main {
   set -exfu
 
+  if ! "$@" systemctl; then
+    return 0
+  fi
+
   (set +f; tail -f /var/log/cloud-init*log) &
 
 	while true; do 
