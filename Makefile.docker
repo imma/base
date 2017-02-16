@@ -45,7 +45,7 @@ SHELL = bash
 NET_SUBNET ?= 172.28.130
 NET_PREFIX ?= 172.28.131
 
-cache_vip ?= 172.28.28.1
+cache_vip ?= 172.28.128.1
 ssh_vip ?= 172.28.29.250
 
 ssh_user ?= $(LOGNAME)
