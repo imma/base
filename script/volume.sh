@@ -3,6 +3,7 @@
 function main {
   set -exfu
 
+  apt-get update -y
   apt-get install -y zfsutils-linux
 
   lvreduce -f -L 1M inception/placeholder
