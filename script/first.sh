@@ -3,15 +3,17 @@
 function main {
   set -exfu
 
-  if ! "$@" systemctl; then
+  if ! systemctl >/dev/null; then
     return 0
   fi
 
   (set +f; tail -f /var/log/cloud-init*log) &
 
 	while true; do 
-    case "$(echo | "$@" systemctl is-active cloud-final.service)" in
+    case "$(systemctl is-active cloud-final.service)" in
       active|failed) 
+          systemctl is-active cloud-final.service
+          (set +f; cat /var/log/cloud-init*log)
           pkill tail
           wait
           exit 0
