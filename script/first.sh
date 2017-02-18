@@ -7,6 +7,10 @@ function main {
     return 0
   fi
 
+  if ! test -d /var/lib/cloud/instance/.; then
+    return 0
+  fi
+
   (set +f; tail -f /var/log/cloud-init*log) &
 
 	while true; do 
