@@ -1,0 +1,5 @@
+---
+- name: installing base
+  register: meh
+
+- debug: var=meh
