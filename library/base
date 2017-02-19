@@ -8,7 +8,7 @@ function main {
 
   local pth_log="$(mktemp -t XXXXXX)"
   local done=
-  trap 'test -z "${done:-}" && cat $pth_log; rm -f $pth_log' EXIT
+  trap 'if [[ -z "${done:-}" ]]; then cat $pth_log; else rm -f $pth_log; fi' EXIT
   exec 1>&2 2>>"$pth_log"
   set -exfu
 
@@ -18,31 +18,26 @@ function main {
   fi
 
   if doit; then
-    done=1
-    exec 1>&4
     jq -n -c -M \
       --arg log "$(cat "$pth_log")" \
-      --arg head "$(git rev-parse HEAD)" \
-      --arg branch "$(git rev-parse --abbrev-ref HEAD)" \
     '{
       changed: true, 
-      head: "\($head)",
-      branch: "\($branch)",
       log: "\($log)"
-    }'
+    }' 1>&4
+    done=1
   fi
 }
 
 function doit {
   sudo apt-get update
   sudo dpkg --remove-architecture i386
-  sudo apt-get install -y software-properties-common python-software-properties openssh-server aptitude
+  sudo apt-get install -y software-properties-common python-software-properties openssh-server apt-get
   sudo env - add-apt-repository -y ppa:git-core/ppa
   sudo env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
-  sudo aptitude purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core
-  sudo aptitude update -y && sudo -E aptitude upgrade -y
-  sudo aptitude install -y net-tools sudo cloud-init dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
-  sudo aptitude install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool
+  sudo apt-get purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core
+  sudo apt-get update -y && sudo -E apt-get upgrade -y
+  sudo apt-get install -y net-tools sudo cloud-init dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux
+  sudo apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool
   sudo mkdir -p /var/run/sshd
 }
 
