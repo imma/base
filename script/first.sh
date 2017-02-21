@@ -21,6 +21,8 @@ function main {
           (set +f; cat /var/log/cloud-init*log)
           pkill tail
           wait
+          reboot
+          sleep 120
           exit 0
         ;;
     esac

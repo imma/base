@@ -25,17 +25,10 @@ runcmd:
   - "env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable"
   - "apt-get update"
   - "apt-get purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core"
-  - "apt-get install -y net-tools sudo cloud-init dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude"
+  - "apt-get install -y net-tools sudo dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude"
   - "apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool linux-generic-hwe-16.04"
   - "mkdir -p /var/run/sshd"
 
 package_upgrade: true
-
-power_state:
- delay: "+30"
- mode: reboot
- message: rebooting
- timeout: 30
- condition: True
 
 --===============88888888888888888888888888==
