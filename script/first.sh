@@ -13,6 +13,7 @@ function main {
 
   (set +f; tail -f /var/log/cloud-init*log) &
 
+  set +x
 	while true; do 
     case "$(systemctl is-active cloud-final.service)" in
       active|failed) 
