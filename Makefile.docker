@@ -204,7 +204,7 @@ image-update:
 block-update:
 	$(service_ssh_exec) -- git fetch
 	$(service_ssh_exec) -- git reset --hard origin/master
-	$(service_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) || $(service_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
+	$(service_ssh_exec) -- cd work/$(block) 2>/dev/null \&\& git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3) \|\| $(service_ssh_exec) -- git checkout $(shell git symbolic-ref HEAD | cut -d/ -f3)
 	$(service_ssh_exec) -- block clone
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
 	$(service_ssh_exec) -- block bootstrap
