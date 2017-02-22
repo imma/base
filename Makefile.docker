@@ -160,7 +160,6 @@ enter-service:
 home:
 	$(make) reset-base daemon home-setup home-deploy
 	$(make) image-update
-	docker tag $(registry)/$(image) $(registry)/$(image)0
 
 home-setup:
 	echo "Host *" | $(service_ssh_exec) -- tee .ssh/config
