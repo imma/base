@@ -204,8 +204,10 @@ block-update:
 	$(service_ssh_exec) -- git fetch
 	$(service_ssh_exec) -- git reset --hard origin/master
 	$(service_ssh_exec) -- block clone
+	$(service_ssh_exec) -- home update
 	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
 	$(service_ssh_exec) -- block bootstrap
+	$(service_ssh_exec) -- block version
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- rm -f service/$(home)
 	$(service_ssh_exec) -- block compile service
@@ -213,7 +215,7 @@ block-update:
 	if test -x script/server; then $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1'
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
-	if test -z "$(cache)"; then $(service_ssh_exec) -- home enable cache; fi
+	$(service_ssh_exec) -- home enable cache
 	$(service_ssh_exec) -- rm -f .gitconfig
 
 prune:
