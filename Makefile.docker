@@ -109,8 +109,6 @@ publish:
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
 	$(make) daemon-ssh
 
 daemon-sshd:
@@ -210,7 +208,6 @@ block-update:
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1'
 	cat Blockfile.json | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
 	$(service_ssh_exec) -- home enable cache
-	$(service_ssh_exec) -- rm -f .gitconfig
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | gxargs -r -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
