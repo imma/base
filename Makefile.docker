@@ -106,11 +106,6 @@ commit:
 publish:
 	docker push $(registry)/$(image)
 
-copy-personal:
-	docker cp ~/.ssh/authorized_keys $(service):$(ssh_remote_home)/.ssh/authorized_keys
-	docker exec $(service) sudo chown -R $(ssh_remote_user):$(ssh_remote_user) $(ssh_remote_home)/.ssh
-	tar cf - -C ~ .gitconfig .ssh/authorized_keys | $(service_ssh_exec) -o StrictHostKeyChecking=no -- tar xvf -
-
 daemon:
 	$(make) clean
 	$(make) daemon-sshd
@@ -145,7 +140,6 @@ shell:
 
 ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
-	$(make) copy-personal
 	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
