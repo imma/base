@@ -174,19 +174,16 @@ docker-is-kit:
 	source ../block/script/profile $(PWD) && $(make) $(docker_default)
 
 docker-block:
-	$(make) reset daemon block-setup block-deploy
+	$(make) reset daemon block-setup image-update
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ] }' | $(service_ssh_exec) -- tee Blockfile.json.site
 
-block-deploy:
-	$(make) image-update
-
-pre_block ?= home_update
+pre_block ?= home-update
 
 after_block ?= minimize
 
-home_update:
+home-update:
 	$(service_ssh_exec) -- home update
 
 minimize:
@@ -198,21 +195,13 @@ image-update:
 	$(make) clean
 
 block-update:
-	$(service_ssh_exec) -- git fetch
-	$(service_ssh_exec) -- git reset --hard
-	$(service_ssh_exec) -- block clone
-	$(service_ssh_exec) -- home update
-	if test -z "$(cache)"; then $(service_ssh_exec) -- home disable cache; fi
 	$(service_ssh_exec) -- block bootstrap
-	$(service_ssh_exec) -- block version
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- rm -f service/$(home)
 	$(service_ssh_exec) -- block compile service
-	if test -x script/server; then $(service_ssh_exec) -- block compile service $(block); fi
-	if test -x script/server; then $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
-	cat Blockfile.json 2>/dev/null | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1'
-	cat Blockfile.json 2>/dev/null | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
-	$(service_ssh_exec) -- home enable cache
+	if test -x script/server; then $(service_ssh_exec) -- block compile service $(block); $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
+	cat Blockfile.json 2>/dev/null | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1; $(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
+	$(service_ssh_exec) -- block version
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | gxargs -r -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
