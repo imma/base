@@ -195,11 +195,11 @@ minimize:
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
 
 image-update:
-	$(make) block-update $(after_block) commit
+	$(make) block-bootstrap $(after_block) commit
 	$(make) build
 	$(make) clean
 
-block-update:
+block-bootstrap:
 	$(service_ssh_exec) -- block bootstrap
 	$(service_ssh_exec) -- block compile service
 	-$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/
