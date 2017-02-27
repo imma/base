@@ -115,7 +115,7 @@ daemon-sshd:
 	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
 
 daemon-ssh:
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true || { sleep 1; $(make) daemon-ssh; }
+	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@$(service_ssh_exec) -- true || { sleep 1; $(make) service-ssh; }
