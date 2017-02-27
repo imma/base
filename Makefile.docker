@@ -178,6 +178,8 @@ docker-block:
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ] }' | $(service_ssh_exec) -- tee Blockfile.json.site
+	$(service_ssh_exec) -- block clone
+	$(service_ssh_exec) -- make cache
 
 pre_block ?= home-update
 
@@ -187,6 +189,7 @@ home-update:
 	$(service_ssh_exec) -- sudo aptitude update
 	$(service_ssh_exec) -- sudo aptitude upgrade -y
 	$(service_ssh_exec) -- home update
+	$(service_ssh_exec) -- make cache
 
 minimize:
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
@@ -198,8 +201,6 @@ image-update:
 
 block-update:
 	$(service_ssh_exec) -- block bootstrap
-	$(service_ssh_exec) -- make cache
-	$(service_ssh_exec) -- rm -f service/$(home)
 	$(service_ssh_exec) -- block compile service
 	if test -x script/server; then $(service_ssh_exec) -- block compile service $(block); $(service_ssh_exec) -- ln -nfs ../sv/$(block) service/; fi
 	cat Blockfile.json 2>/dev/null | jq -r '.run//{sshd:{}} | keys[]' | runmany '$(service_ssh_exec) -- block compile service $$1; $(service_ssh_exec) -- ln -nfs ../sv/$$1 service/'
