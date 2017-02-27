@@ -151,6 +151,7 @@ enter-service:
 
 home:
 	$(make) reset-base daemon home-setup home-deploy
+	$(service_ssh_exec) -- ln -nfs ../sv/sshd ../sv/consule-agent service/
 	$(make) image-update
 
 home-setup:
