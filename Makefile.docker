@@ -202,7 +202,7 @@ image-update:
 block-update:
 	$(service_ssh_exec) -- block bootstrap
 	$(service_ssh_exec) -- block compile service
-	$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/
+	-$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/
 	$(service_ssh_exec) -- block version
 
 prune:
