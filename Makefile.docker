@@ -182,7 +182,12 @@ block-setup:
 block-deploy:
 	$(make) image-update
 
+pre_block ?= home_update
+
 after_block ?= minimize
+
+home_update:
+	$(service_ssh_exec) -- home update
 
 minimize:
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
