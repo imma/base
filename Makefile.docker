@@ -151,7 +151,6 @@ enter-service:
 
 home:
 	$(make) reset-base daemon home-setup home-deploy
-	$(service_ssh_exec) -- ln -nfs ../sv/sshd ../sv/consule-agent service/
 	$(make) image-update
 
 home-setup:
@@ -160,6 +159,7 @@ home-setup:
 
 home-deploy:
 	script/deploy $(service_ssh_exec)
+	$(service_ssh_exec) -- ln -nfs ../sv/sshd ../sv/consul-agent service/
 
 docker_default = docker-block
 
