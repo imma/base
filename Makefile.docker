@@ -138,7 +138,7 @@ shell:
 
 ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
-	ssh -t -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
+	ssh -t -A -o StrictHostKeyChecking=no -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
 	@ssh -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) tee $(FILE)
