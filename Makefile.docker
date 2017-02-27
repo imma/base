@@ -177,7 +177,7 @@ docker-block:
 	$(make) reset daemon block-setup image-update
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$org)/\($$block)@\($$version)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
+	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- make cache
 
