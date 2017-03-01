@@ -189,6 +189,8 @@ after_block ?= minimize
 home-update:
 	$(service_ssh_exec) -- sudo aptitude update
 	$(service_ssh_exec) -- sudo aptitude upgrade -y
+	$(service_ssh_exec) -- git reset --hard
+	$(service_ssh_exec) -- git pull
 	$(service_ssh_exec) -- script/cibuild
 
 minimize:
