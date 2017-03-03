@@ -18,23 +18,22 @@ function main {
   rm -f /lib/udev/rules.d/75-persistent-net-generator.rules
 
   echo "==> Cleaning up leftover dhcp leases"
-  rm -f /var/lib/dhcp/*
+  (set +f; rm -f /var/lib/dhcp/*)
 
   echo "==> Cleaning up tmp"
-  rm -rf /tmp/*
+  (set +f; rm -rf /tmp/*)
 
   # Cleanup apt cache
   apt-get -y autoremove --purge
   apt-get -y clean
-  apt-get -y autoclean
 
   # Remove Bash history
   unset HISTFILE
   rm -f /root/.bash_history
-  rm -f /home/*/.bash_history
+  (set +f; rm -f /home/*/.bash_history)
 
   # Clean up log files
-  find /var/log -type f | while read f; do echo -ne '' > $f; done;
+  set +x; find /var/log -type f | while read f; do echo -ne '' > $f; done; set -x
 
   echo "==> Clearing last login information"
   >/var/log/lastlog
