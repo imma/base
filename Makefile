@@ -15,3 +15,7 @@ virtualbox:
 	$(MAKE)
 	time env http_proxy=$(cache_vip) plane rebase
 
+aws:
+	$(MAKE)
+	time van rebase
+
