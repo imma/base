@@ -182,7 +182,7 @@ block-setup:
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- make cache
 
-pre_block ?= home-update
+pre_block ?= home-update home-cibuild
 
 after_block ?= minimize
 
@@ -191,6 +191,8 @@ home-update:
 	$(service_ssh_exec) -- sudo aptitude upgrade -y
 	$(service_ssh_exec) -- git reset --hard
 	$(service_ssh_exec) -- git pull
+
+home-cibuild:
 	$(service_ssh_exec) -- script/cibuild
 
 minimize:
@@ -203,6 +205,9 @@ image-update:
 
 block-bootstrap:
 	$(service_ssh_exec) -- block bootstrap
+	$(make) block-finish
+
+block-finish:
 	$(service_ssh_exec) -- block compile service
 	$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/ \|\| true
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
