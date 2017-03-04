@@ -1,6 +1,5 @@
 FROM docker.nih/block:base
 
-ARG SERIAL
 ARG CACHE
 
 USER root

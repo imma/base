@@ -98,7 +98,7 @@ reset:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" --build-arg SERIAL=$(SERIAL) $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
 
 commit:
 	docker commit $(service) $(registry)/$(image) $(opt)
@@ -231,15 +231,6 @@ status:
 
 ps:
 	@$(docker_compose) ps
-
-SERIAL = $(shell cat .serial)
-
-.serial:
-	@echo 1 > .serial
-
-bump: .serial
-	@echo $(SERIAL) + 1 | bc > .serial.tmp
-	mv .serial.tmp .serial
 
 reset-time:
 	docker run -it --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i date -u $(shell date -u +%m%d%H%M%Y)
