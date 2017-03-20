@@ -180,6 +180,7 @@ docker-block:
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
 	$(service_ssh_exec) -- block clone
+	$(service_ssh_exec) -- cd work/$(block) \&\& home update
 	$(service_ssh_exec) -- make cache
 
 pre_block ?= home-update home-cibuild
