@@ -112,7 +112,7 @@ daemon:
 	$(make) daemon-ssh
 
 daemon-sshd:
-	docker run -d -ti -v /data:/data -v /config:/config -v ~/.ssh/authorized_keys:/home/ubuntu/.ssh/authorized_keys --name $(service) -p :$(ssh_port) $(registry)/$(image)
+	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
 
 daemon-ssh:
 	$(service_ssh_exec) -o StrictHostKeyChecking=no -- true 2>/dev/null || { sleep 1; $(make) daemon-ssh; }
