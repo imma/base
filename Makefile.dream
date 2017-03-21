@@ -3,7 +3,7 @@ all: cidata.iso .d/cidata/user-data .d/cidata/meta-data
 
 cidata/user-data: cidata/user-data.template
 	mkdir -p cidata
-	cat cidata/user-data.template | envsubst '$$USER $$CACHE_VIP' | tee "$@.tmp"
+	cat "$<" | envsubst '$$USER $$CACHE_VIP' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/meta-data:
@@ -16,9 +16,10 @@ cidata.iso: cidata/user-data cidata/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata
 	mv $@.tmp $@
 
-.d/cidata/user-data: cidata/user-data
+.d/cidata/user-data: cidata/user-data.docker
 	mkdir -p .d/cidata
-	cp "$<" "$@"
+	cat "$<" | envsubst '$$USER $$CACHE_VIP' | tee "$@.tmp"
+	mv "$@.tmp" "$@"
 
 .d/cidata/meta-data: cidata/meta-data
 	mkdir -p .d/cidata
