@@ -9,7 +9,7 @@ cidata/user-data: cidata/user-data.template
 cidata/meta-data:
 	mkdir -p cidata
 	echo --- | tee $@.tmp
-	echo instance-id: $(shell basename $(shell pwd)) | tee -a $@.tmp
+	echo instance-id: $(shell basename $(shell pwd))-$(shell date +%s) | tee -a $@.tmp
 	mv $@.tmp $@
 
 .d/cidata/user-data: cidata/user-data.docker
@@ -23,14 +23,12 @@ cidata/meta-data:
 
 cidata/.iso/user-data: cidata/user-data.iso
 	mkdir -p cidata/.iso
-	cat "$<" | env CONTAINER_SSH_KEY="$(shell head -1 /config/ssh/authorized_keys)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="base-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell head -1 /config/ssh/authorized_keys)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.iso/meta-data: cidata/meta-data
-	mkdir -p cidata
-	echo --- | tee $@.tmp
-	echo instance-id: $(shell basename $(shell pwd)) | tee -a $@.tmp
-	mv $@.tmp $@
+	mkdir -p cidata/.iso
+	cp "$<" "$@"
 
 cidata.iso: cidata/.iso/user-data cidata/.iso/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata/.iso
