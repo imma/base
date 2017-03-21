@@ -1,4 +1,4 @@
-all: cidata.iso .d/cidata/user-data .d/cidata/meta-data
+all: cidata.iso .d/cidata/user-data .d/cidata/meta-data cidata/user-data cidata/meta-data cidata/.iso/user-data cidata/.iso/meta-data
 	@true
 
 cidata/user-data: cidata/user-data.template
