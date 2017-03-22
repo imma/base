@@ -23,9 +23,3 @@ virtualbox:
 aws:
 	$(MAKE)
 	time van rebase
-
-clean-cidata:
-	rm -rf cidata/.iso
-	rm -rf .d/cidata
-	rm -f cidata/meta-data
-	rm -f cidata/user-data
