@@ -12,8 +12,13 @@ docker-update:
 	time $(make) clean daemon build
 
 virtualbox:
+	$(MAKE) clean-cidata
 	$(MAKE)
-	time env http_proxy=$(cache_vip) plane rebase
+	time env http_proxy=$(cache_vip) plane media packer
+	$(MAKE) clean-cidata
+	$(MAKE)
+	plane vagrant destroy -f || true
+	time env http_proxy=$(cache_vip) BASEBOX_SOURCE="inception:packer" plane build
 
 aws:
 	$(MAKE)
