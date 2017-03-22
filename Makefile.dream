@@ -1,4 +1,4 @@
-all: cidata.iso .d/cidata/user-data .d/cidata/meta-data cidata/user-data cidata/meta-data cidata/.iso/user-data cidata/.iso/meta-data
+all: .d/cidata/user-data .d/cidata/meta-data cidata/user-data cidata/meta-data cidata.iso cidata/.iso/user-data cidata/.iso/meta-data cidata.vagrant cidata/.vagrant/user-data cidata/.vagrant/meta-data
 	@true
 
 cidata/user-data: cidata/user-data.template
@@ -23,7 +23,7 @@ cidata/meta-data:
 
 cidata/.iso/user-data: cidata/user-data.iso .ssh/ssh-iso.pub
 	mkdir -p cidata/.iso
-	cat "$<" | env INSTANCE_ID="base-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell cat .ssh/ssh-iso.pub)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="packer-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell cat .ssh/ssh-iso.pub)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.iso/meta-data: cidata/meta-data
@@ -37,3 +37,17 @@ cidata.iso: cidata/.iso/user-data cidata/.iso/meta-data
 .ssh/ssh-iso:
 	@mkdir -p .ssh
 	@ssh-keygen -f $@ -P '' -C "packer-iso@$(shell uname -n)"
+
+cidata/.vagrant/user-data: cidata/user-data.iso
+	mkdir -p cidata/.vagrant
+	cat "$<" | env INSTANCE_ID="vagrant-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell head -1 /config/ssh/authorized_keys)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	mv "$@.tmp" "$@"
+
+cidata/.vagrant/meta-data: cidata/meta-data
+	mkdir -p cidata/.vagrant
+	cp "$<" "$@"
+
+cidata.vagrant: cidata/.vagrant/user-data cidata/.vagrant/meta-data
+	mkisofs -R -V cidata -o $@.tmp cidata/.vagrant
+	mv $@.tmp $@
+

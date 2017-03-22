@@ -1,5 +1,5 @@
-/cidata.iso
-/cidata/.iso
+/cidata.*
+/cidata/.*
 /cidata/user-data
 /cidata/meta-data
 /.d/cidata
