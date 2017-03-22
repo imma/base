@@ -1,4 +1,4 @@
-all: .d/cidata/user-data .d/cidata/meta-data cidata/user-data cidata/meta-data cidata.iso cidata/.iso/user-data cidata/.iso/meta-data cidata.vagrant cidata/.vagrant/user-data cidata/.vagrant/meta-data
+all: .d/cidata/user-data .d/cidata/meta-data cidata/user-data cidata/meta-data cidata.iso cidata/.iso/user-data cidata/.iso/meta-data cidata.vagrant.iso cidata/.vagrant/user-data cidata/.vagrant/meta-data
 	@true
 
 cidata/user-data: cidata/user-data.template
@@ -49,7 +49,7 @@ cidata/.vagrant/meta-data: cidata/meta-data
 	mkdir -p cidata/.vagrant
 	cp "$<" "$@"
 
-cidata.vagrant: cidata/.vagrant/user-data cidata/.vagrant/meta-data
+cidata.vagrant.iso: cidata/.vagrant/user-data cidata/.vagrant/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata/.vagrant
 	mv $@.tmp $@
 
@@ -59,3 +59,4 @@ clean-cidata:
 	rm -f cidata/meta-data
 	rm -f cidata/user-data
 	rm -f .ssh/ssh-iso .ssh/ssh-iso.pub
+	rm -f cidata.iso cidata.vagrant.iso
