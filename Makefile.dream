@@ -21,9 +21,9 @@ cidata/meta-data:
 	mkdir -p .d/cidata
 	cp "$<" "$@"
 
-cidata/.iso/user-data: cidata/user-data.iso
+cidata/.iso/user-data: cidata/user-data.iso .ssh/ssh-iso.pub
 	mkdir -p cidata/.iso
-	cat "$<" | env INSTANCE_ID="base-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell head -1 /config/ssh/authorized_keys)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="base-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell cat .ssh/ssh-iso.pub)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.iso/meta-data: cidata/meta-data
@@ -34,3 +34,6 @@ cidata.iso: cidata/.iso/user-data cidata/.iso/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata/.iso
 	mv $@.tmp $@
 
+.ssh/ssh-iso:
+	@mkdir -p .ssh
+	@ssh-keygen -f $@ -P '' -C "packer-iso@$(shell uname -n)"
