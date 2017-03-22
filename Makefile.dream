@@ -34,6 +34,15 @@ cidata.iso: cidata/.iso/user-data cidata/.iso/meta-data
 	mkisofs -R -V cidata -o $@.tmp cidata/.iso
 	mv $@.tmp $@
 
+.ssh/ssh-iso.pub: .ssh/ssh-iso
+
 .ssh/ssh-iso:
 	@mkdir -p .ssh
 	@ssh-keygen -f $@ -P '' -C "packer-iso@$(shell uname -n)"
+
+clean-cidata:
+	rm -rf cidata/.iso
+	rm -rf .d/cidata
+	rm -f cidata/meta-data
+	rm -f cidata/user-data
+	rm -f .ssh/ssh-iso .ssh/ssh-iso.pub
