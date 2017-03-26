@@ -12,8 +12,7 @@ users:
  - name: ubuntu
    shell: /bin/bash
    sudo: "ALL=(ALL) NOPASSWD: ALL"
-   ssh-authorized-keys:
-    - ${CONTAINER_SSH_KEY}
+   ssh-authorized-keys: [ ${CONTAINER_SSH_KEY}, "command=false ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDq8qhg+hSlHuXtvXvMB4sNvvdTbXRs8Sv88Jcui8IFbykizVREAkB4Qx+VSelcZoXTrlyFGvXFtYJKRatuiItewxjB/R6MHV8B5aHs24vfNz/12j2DDTSbO5/mrTkBo1dP4Wpag74filL5t6Var4FUHceLzQ/cpVOncGpZyHAw41NsGIjYUjyRpKtKucB6qXnRs9hQtTI8b8k1PvQMlTDJWPkoJw9hI7Ypc44sBk89F+Mfy5xR6+SXbDSGi6TQum30wa6FuwWKcPLcRUHUCjeM9i9Mq6WnAxd0yiA0L2p7YPO8tFlpxwZIQOcb727irLhtKAZJwS8mUb2r4tw/Md1m fake"]
 
 manage_etc_hosts: true
 

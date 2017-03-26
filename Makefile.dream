@@ -23,7 +23,7 @@ cidata/meta-data:
 
 cidata/.iso/user-data: cidata/user-data.iso .ssh/ssh-iso.pub
 	mkdir -p cidata/.iso
-	cat "$<" | env INSTANCE_ID="packer-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell cat .ssh/ssh-iso.pub)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="packer-$(shell date +%s)" CONTAINER_SSH_KEY="\"$(shell cat .ssh/ssh-iso.pub)\"" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.iso/meta-data: cidata/meta-data
@@ -42,7 +42,7 @@ cidata.iso: cidata/.iso/user-data cidata/.iso/meta-data
 
 cidata/.vagrant/user-data: cidata/user-data.iso
 	mkdir -p cidata/.vagrant
-	cat "$<" | env INSTANCE_ID="vagrant-$(shell date +%s)" CONTAINER_SSH_KEY="$(shell head -1 /config/ssh/authorized_keys)" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="vagrant-$(shell date +%s)" CONTAINER_SSH_KEY='$(shell cat /config/ssh/authorized_keys | while read -r a; do echo -n "\"$$a\","; done)' envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.vagrant/meta-data: cidata/meta-data
