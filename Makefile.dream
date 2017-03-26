@@ -23,7 +23,7 @@ cidata/meta-data:
 
 cidata/.iso/user-data: cidata/user-data.iso .ssh/ssh-iso.pub
 	mkdir -p cidata/.iso
-	cat "$<" | env INSTANCE_ID="packer-$(shell date +%s)" CONTAINER_SSH_KEY="\"$(shell cat .ssh/ssh-iso.pub)\"" envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
+	cat "$<" | env INSTANCE_ID="packer-$(shell date +%s)" CONTAINER_SSH_KEY="\"$(shell cat .ssh/ssh-iso.pub)\"," envsubst '$$USER $$CACHE_VIP $$CONTAINER_SSH_KEY' | tee "$@.tmp"
 	mv "$@.tmp" "$@"
 
 cidata/.iso/meta-data: cidata/meta-data
