@@ -60,7 +60,7 @@ ssh_remote_home ?= /home/ubuntu
 
 service = $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
-service_ssh_exec = $(ssh_prefix) ssh -A -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
+service_ssh_exec = $(ssh_prefix) ssh -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
 
 docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
 
@@ -115,7 +115,7 @@ daemon-sshd:
 	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) $(registry)/$(image)
 
 daemon-ssh:
-	$(service_ssh_exec) -o StrictHostKeyChecking=no -o BatchMode=yes -- true 2>/dev/null || { sleep 1; $(make) daemon-ssh; }
+	$(service_ssh_exec) -- true 2>/dev/null || { sleep 1; $(make) daemon-ssh; }
 
 service-ssh:
 	@$(service_ssh_exec) -- true || { sleep 1; $(make) service-ssh; }
@@ -138,7 +138,7 @@ shell:
 
 ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
-	ssh -t -A -o StrictHostKeyChecking=no -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
+	ssh -t -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 cat:
 	@ssh -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) tee $(FILE)
