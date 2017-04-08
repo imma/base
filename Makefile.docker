@@ -159,7 +159,7 @@ home-setup:
 home-deploy:
 	script/deploy $(service_ssh_exec)
 	$(service_ssh_exec) -- block compile service
-	$(service_ssh_exec) -- ln -nfs ../sv/sshd ../sv/consul-agent service/
+	$(service_ssh_exec) -- ln -nfs ../sv/sshd service/
 
 docker_default = docker-block
 
