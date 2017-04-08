@@ -68,7 +68,7 @@ ssh_port ?= 2222
 ssh_remote_user ?= ubuntu
 ssh_remote_home ?= /home/ubuntu
 
-service = $(block)_$(SERVICE)_1
+service ?= $(block)_$(SERVICE)_1
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
 
