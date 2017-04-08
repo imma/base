@@ -177,13 +177,7 @@ docker_default = docker-block
 BLOCK_KIT ?= block
 
 docker:
-	$(make) docker-is-$(BLOCK_KIT)
-
-docker-is-block:
 	$(make) $(docker_default)
-
-docker-is-kit:
-	source ../block/script/profile $(PWD) && $(make) $(docker_default)
 
 docker-block:
 	$(make) reset daemon block-setup block-bootstrap $(after_block) image-update
