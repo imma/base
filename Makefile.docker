@@ -1,5 +1,5 @@
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
-block := $(shell basename $(shell echo $(PWD)))
+block := $(shell basename $(shell cat .block-name 2>/dev/null || echo $(PWD)))
 image = block:$(block)
 version = $(shell git rev-parse --abbrev-ref HEAD)
 ifeq (HEAD,$(version))
