@@ -80,7 +80,7 @@ home = ubuntu
 
 make = $(MAKE) cache=$(cache) squid=$(squid) SERVICE=$(SERVICE)
 
-hub ?= defn
+hub ?= docker.nih
 registry ?= docker.nih
 cache ?= cache.nih
 squid ?= http://$(cache):3128
