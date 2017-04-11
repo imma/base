@@ -3,8 +3,8 @@
 function main {
   set -exfu
 
-  passwd -l ubuntu
-  passwd -l root
+  usermod -p '*' ubuntu
+  usermod -p '*' root
 
   systemctl disable apt-daily.service
   systemctl disable apt-daily.timer
