@@ -17,6 +17,7 @@ RUN apt-get install -y cloud-init sudo net-tools
 RUN cloud-init init
 RUN cloud-init modules
 RUN cloud-init modules -m final
+RUN usermod -p '*' ubuntu
 
 ADD etc/rc.local /etc/rc.local
 ADD etc/rc.server /etc/rc.server
