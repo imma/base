@@ -196,7 +196,6 @@ home-update:
 	docker exec $(service) sudo aptitude update
 	docker exec $(service) sudo aptitude upgrade -y
 	docker exec $(service) chmod -v 0640 '~/.ssh/config'
-	docker exec $(service) usermod -p '*' ubuntu
 	$(service_ssh_exec) -- git pull
 	$(service_ssh_exec) -- make sync cache reset-sshd
 
