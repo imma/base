@@ -161,11 +161,7 @@ enter-service:
 	docker exec -ti -u $(ssh_remote_user) $(service) bash -il -c 'cd; exec bash -il'
 
 home:
-	$(make) reset-base daemon home-setup home-deploy image-update
-
-home-setup:
-	echo "Host *" | $(service_ssh_exec) -- tee .ssh/config
-	echo "StrictHostKeyChecking no" | $(service_ssh_exec) -- tee -a .ssh/config
+	$(make) reset-base daemon home-deploy image-update
 
 home-deploy:
 	script/deploy $(service_ssh_exec)
@@ -188,18 +184,12 @@ block-setup:
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
 
-pre_block ?= home-update home-cibuild
+pre_block ?= nada
 
 after_block ?= minimize
 
-home-update:
-	docker exec $(service) sudo aptitude update
-	docker exec $(service) sudo aptitude upgrade -y
-	$(service_ssh_exec) -- git pull
-	$(service_ssh_exec) -- make sync cache
-
-home-cibuild:
-	$(service_ssh_exec) -- script/cibuild
+nada:
+	true
 
 minimize:
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
