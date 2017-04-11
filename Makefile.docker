@@ -184,12 +184,9 @@ block-setup:
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
 
-pre_block ?= nada
+pre_block ?= home-deploy
 
 after_block ?= minimize
-
-nada:
-	true
 
 minimize:
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
