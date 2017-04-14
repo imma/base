@@ -93,6 +93,9 @@ endif
 nothing:
 	@true
 
+nc:
+	@true
+
 build:
 	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
 
