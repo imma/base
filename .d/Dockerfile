@@ -91,6 +91,8 @@ RUN apt-get install -y -qq \
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/*
+
+RUN ls -ld /var/log /etc/default
                                    
 ENTRYPOINT [ "/etc/rc.server" ]
 CMD [ "-p", "2222" ]
