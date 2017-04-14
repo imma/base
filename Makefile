@@ -8,14 +8,14 @@ endif
 
 docker_default = docker-base
 
+docker-base:
+	$(MAKE)
+	time $(make) build
+
 reset:
 	docker pull ubuntu:xenial
 	docker tag ubuntu:xenial $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
-
-docker-base:
-	$(MAKE)
-	time $(make) clean daemon build
 
 virtualbox:
 	$(MAKE) clean-cidata
