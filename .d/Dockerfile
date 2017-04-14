@@ -17,7 +17,9 @@ RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 RUN apt-get update
 RUN apt-get install -y cloud-init sudo net-tools
 
+RUN find /etc/ssh -ls
 RUN cloud-init init
+RUN find /etc/ssh -ls
 RUN cloud-init modules
 RUN cloud-init modules -m final
 RUN usermod -p '*' ubuntu
