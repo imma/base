@@ -6,13 +6,14 @@ KEYPAIR := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 $(eval $(KEYPAIR):;@:)
 endif
 
-docker_default = docker-image
+docker_default = docker-base
 
-docker-image:
-	$(MAKE)
-	time $(make) reset-xenial build
+reset:
+	docker pull ubuntu:xenial
+	docker tag ubuntu:xenial $(registry)/block:xenial
+	docker tag $(registry)/block:xenial $(registry)/$(image)
 
-docker-update:
+docker-base:
 	$(MAKE)
 	time $(make) clean daemon build
 
