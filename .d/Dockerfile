@@ -7,6 +7,8 @@ USER root
 ENV http_proxy http://${CACHE}:3128
 ENV https_proxy http://${CACHE}:3128
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 ADD etc/99_nonet.cfg /etc/cloud/cloud.cfg.d/99_nonet.cfg
 ADD cidata/user-data /var/lib/cloud/seed/nocloud/user-data
 ADD cidata/meta-data /var/lib/cloud/seed/nocloud/meta-data
