@@ -16,14 +16,10 @@ ADD cidata/meta-data /var/lib/cloud/seed/nocloud/meta-data
 RUN echo 1
 
 RUN apt-get update
-RUN apt-get install -y locales
+RUN apt-get install -y cloud-init sudo net-tools locales
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-RUN apt-get install -y cloud-init sudo net-tools
 
-RUN mkdir -p /etc/ssh
-RUN find /etc/ssh -ls || true
 RUN cloud-init init
-RUN find /etc/ssh -ls
 RUN cloud-init modules
 RUN cloud-init modules -m final
 RUN usermod -p '*' ubuntu
