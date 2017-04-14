@@ -31,7 +31,7 @@ RUN usermod -p '*' ubuntu
 ADD etc/rc.local /etc/rc.local
 ADD etc/rc.server /etc/rc.server
 
-RUN apt-get install -y -qq \
+RUN apt-get install -y \
     bash \
     bash-completion \
     bc \
