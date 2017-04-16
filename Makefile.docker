@@ -90,6 +90,12 @@ cache=
 squid=
 endif
 
+print-%:
+	@echo '$*=$($*)'
+	@echo '  origin = $(origin $*)'
+	@echo '  flavor = $(flavor $*)'
+	@echo '   value = $(value  $*)'
+
 nothing:
 	@true
 
