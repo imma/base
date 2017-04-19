@@ -1,11 +1,6 @@
 include Makefile.dream
 include Makefile.docker
 
-ifeq (aws,$(firstword $(MAKECMDGOALS)))
-KEYPAIR := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-$(eval $(KEYPAIR):;@:)
-endif
-
 docker_default = docker-base
 
 docker-base:
@@ -28,4 +23,4 @@ virtualbox:
 
 aws:
 	$(MAKE)
-	time env AWS_KEYPAIR=$(KEYPAIR) van rebase
+	time van rebase
