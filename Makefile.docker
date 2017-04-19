@@ -105,6 +105,9 @@ nc:
 build:
 	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
 
+build-nc:
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE= $(opt) .; fi
+
 commit:
 	docker commit $(service) $(registry)/$(image) $(opt)
 
