@@ -30,8 +30,10 @@ ADD etc/rc.server /etc/rc.server
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/*
 
+USER ubuntu
+RUN ssh -o StrictHostKeyChecking=no git@github.com true 2>/dev/null || true
+
+USER root
 ENTRYPOINT [ "/etc/rc.server" ]
 CMD [ "-p", "2222" ]
 
-USER ubuntu
-RUN ssh -o StrictHostKeyChecking=no git@github.com true 2>/dev/null || true
