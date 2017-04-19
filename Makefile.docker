@@ -103,7 +103,7 @@ nc:
 	@true
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
 
 commit:
 	docker commit $(service) $(registry)/$(image) $(opt)
