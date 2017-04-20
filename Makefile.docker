@@ -51,7 +51,7 @@ endif
 
 SERVICE ?= $(block)_$(block)_1
 ifeq "$(strip $(SERVICE))" ""
-SERVICE ;= $(block)_$(block)_1
+SERVICE := $(block)_$(block)_1
 endif
 
 SHELL = bash
