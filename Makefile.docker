@@ -33,11 +33,10 @@ $(eval $(SERVICE):;@:)
 $(eval $(FILE):;@:)
 endif
 
-ifeq (rebuild,$(firstword $(MAKECMDGOALS)))
+ifeq (rebuild-one,$(firstword $(MAKECMDGOALS)))
 REBUILD := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(REBUILD):;@:)
 endif
-REBUILD ?= app
 
 ifeq (scale,$(firstword $(MAKECMDGOALS)))
 SCALE := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
