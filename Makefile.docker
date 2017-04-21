@@ -223,14 +223,14 @@ reset-time:
 ../$(REBUILD):
 	git clone git@github.com:imma/$(REBUILD) ../$(REBUILD)
 	
-rebuild: ../$(REBUILD)
+rebuild-one: ../$(REBUILD)
 	@figlet $(REBUILD) 2>/dev/null || true
 	@touch .$(REBUILD).building
 	cd ../$(REBUILD) && $(extra) make docker
 	@rm -f .$(REBUILD).building
 
 rebuild-all:
-	cat compose.json | jq -r '.services | keys[]' | grep -v ubuntu | runmany 4 '$(make) rebuild $$1 || true'
+	cat compose.json | jq -r '.services | keys[]' | grep -v ubuntu | runmany 4 '$(make) rebuild-one $$1 || true'
 
 local:
 	docker images | grep $(hub)/block | awk '{print $$2}' | runmany 'docker tag $(hub)/block:$$1 $(registry)/block:$$1 && docker rmi $(hub)/block:$$1'
