@@ -17,7 +17,7 @@ new-cidata:
 	$(MAKE)
 
 virtualbox:
-	$(make) virtual-iso
+	$(make) virtualbox-iso
 
 virtualbox-iso:
 	$(MAKE) new-cidata
