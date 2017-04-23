@@ -16,12 +16,15 @@ new-cidata:
 	$(MAKE) clean-cidata
 	$(MAKE)
 
+virtualbox:
+	$(make) virtual-iso
+
 virtualbox-iso:
 	$(MAKE) new-cidata
 	time env http_proxy=$(cache_vip) plane media base
 	$(MAKE) new-cidata
 
-virtualbox:
+virtualbox-ovf:
 	$(MAKE) new-cidata
 	time env http_proxy=$(cache_vip) OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
 	$(MAKE) new-cidata
