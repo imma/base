@@ -12,14 +12,19 @@ reset:
 	docker tag ubuntu:xenial $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
 
+new-cidata:
+	$(MAKE) clean-cidata
+	$(MAKE)
+
+virtualbox-iso:
+	$(MAKE) new-cidata
+	time env http_proxy=$(cache_vip) plane media base
+	$(MAKE) new-cidata
+
 virtualbox:
-	$(MAKE) clean-cidata
-	$(MAKE)
-	time env http_proxy=$(cache_vip) plane media packer
-	$(MAKE) clean-cidata
-	$(MAKE)
-	plane vagrant destroy -f || true
-	time env http_proxy=$(cache_vip) BASEBOX_SOURCE="inception:packer" plane build
+	$(MAKE) new-cidata
+	time env http_proxy=$(cache_vip) OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
+	$(MAKE) new-cidata
 
 aws:
 	$(MAKE)
