@@ -29,4 +29,4 @@ virtualbox-ovf:
 
 aws:
 	$(MAKE)
-	time van rebase
+	time van rebase base
