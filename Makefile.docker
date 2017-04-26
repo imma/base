@@ -220,7 +220,7 @@ reset-time:
 	docker run -it --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i date -u $(shell date -u +%m%d%H%M%Y)
 
 ../$(REBUILD):
-	git clone git@github.com:imma/$(REBUILD) ../$(REBUILD)
+	git clone -b $(shell git rev-parse --abbrev-ref HEAD) git@github.com:imma/$(REBUILD) ../$(REBUILD)
 	
 rebuild-one: ../$(REBUILD)
 	@figlet $(REBUILD) 2>/dev/null || true
