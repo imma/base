@@ -4,8 +4,8 @@ ARG CACHE
 
 USER root
 
-ENV http_proxy http://172.28.131.133:3128
-ENV https_proxy http://172.28.131.133:3128
+ENV http_proxy http://${CACHE}:3128
+ENV https_proxy http://${CACHE}:3128
 
 ENV DEBIAN_FRONTEND=noninteractive
 
