@@ -4,8 +4,8 @@ ARG CACHE
 
 USER root
 
-ENV http_proxy http://${CACHE}:3128
-ENV https_proxy http://${CACHE}:3128
+ENV http_proxy http://172.28.131.133:3128
+ENV https_proxy http://172.28.131.133:3128
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -17,6 +17,7 @@ RUN echo 1
 
 RUN apt-get update
 RUN apt-get install -y cloud-init sudo net-tools locales
+RUN apt-get upgrade -y
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 RUN cloud-init init
