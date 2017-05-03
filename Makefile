@@ -21,11 +21,11 @@ virtualbox:
 
 virtualbox-iso:
 	$(MAKE) new-cidata
-	time env http_proxy=$(cache_vip) plane media base
+	time env http_proxy=http://$(cache_vip):3128 plane media base
 
 virtualbox-ovf:
 	$(MAKE) new-cidata
-	time env http_proxy=$(cache_vip) OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
+	time env http_proxy=http://$(cache_vip):3128 OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
 
 aws:
 	$(MAKE)
