@@ -1,0 +1,52 @@
+require "net/ssh"
+
+module Net::SSH
+  class << self
+    alias_method :old_start, :start
+
+    def start(host, username, opts)
+      opts[:keys_only] = false
+      self.old_start(host, username, opts)
+    end
+  end
+end
+
+Vagrant.configure("2") do |config|
+  module Vagrant
+    module Util
+      class Platform
+        class << self
+          def solaris?
+            true
+          end
+        end
+      end
+    end
+  end
+end
+
+Vagrant.configure("2") do |config|
+  config.ssh.shell = "bash"
+  config.ssh.username = "ubuntu"
+  config.ssh.forward_agent = true
+  config.ssh.insert_key = false
+
+  config.vm.provider "virtualbox" do |v, override|
+    override.nfs.functional = true
+    override.vm.synced_folder ENV['HOME'], '/vagrant', disabled: true
+
+
+    v.linked_clone = true
+
+    v.customize [ 'modifyvm', :id, '--nictype1', 'virtio' ]
+    v.customize [ 'modifyvm', :id, '--paravirtprovider', 'kvm' ]
+    v.customize [ 'modifyvm', :id, '--cableconnected1', 'on' ]
+    v.customize [ 'modifyvm', :id, '--cableconnected2', 'on' ]
+
+    v.customize [
+      'storagectl', :id,
+      '--name', 'SATA Controller',
+      '--hostiocache', 'on'
+    ]
+  end
+end
