@@ -140,21 +140,17 @@ docker:
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
-	$(make) recycle block-setup block-bootstrap minimize image-update
+	$(make) recycle 
+	$(make) block-setup block-bootstrap minimize image-update
+
+aws-block:
+	$(make) block-setup block-bootstrap minimize
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
-
-minimize:
-	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
-
-image-update:
-	$(make) commit
-	$(make) build
-	$(make) clean
 
 block-bootstrap:
 	$(service_ssh_exec) -- block bootstrap
@@ -165,6 +161,14 @@ block-finish:
 	$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/ \|\| true
 	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
 	$(service_ssh_exec) -- block version
+
+minimize:
+	$(service_ssh_exec) -- rm -rf work/pkgsrc/vendor/pkgsrc
+
+image-update:
+	$(make) commit
+	$(make) build
+	$(make) clean
 
 prune:
 	docker ps -a | grep -v ' Up ' | tail -n +2 | awk '{print $$1}' | gxargs -r -n 1 bash -c 'docker rm -f $$1 2>/dev/null || true' ''
