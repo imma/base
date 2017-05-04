@@ -10,6 +10,11 @@ CONTAINER := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(CONTAINER):;@:)
 endif
 
+ifeq (remote,$(firstword $(MAKECMDGOALS)))
+REMOTE := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
+$(eval $(REMOTE):;@:)
+endif
+
 ifeq (rebuild-one,$(firstword $(MAKECMDGOALS)))
 REBUILD := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(REBUILD):;@:)
@@ -118,11 +123,8 @@ ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	ssh -t -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
-enter:
-	docker exec -ti -u $(ssh_remote_user) $(service) bash -il -c 'cd; exec bash -il'
-
-enter-service:
-	docker exec -ti -u $(ssh_remote_user) $(service) bash -il -c 'cd; exec bash -il'
+remote:
+	$(service_ssh_exec) -- $(REMOTE)
 
 home-deploy:
 	script/deploy $(service_ssh_exec)
