@@ -124,7 +124,7 @@ ssh:
 	ssh -t -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
 
 remote:
-	$(service_ssh_exec) -- $(REMOTE)
+	$(service_ssh_exec) -- make $(REMOTE)
 
 home-deploy:
 	script/deploy $(service_ssh_exec)
