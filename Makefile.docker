@@ -146,7 +146,7 @@ docker-block:
 	$env (make) block-setup block-bootstrap minimize image-update
 
 aws:
-	$(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws_fr
+	env BASEBOX_NAME_OVERRIDE=block:ubuntu $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws_fr
 
 aws_fr:
 	time $(make) aws-block
