@@ -1,4 +1,3 @@
-org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
 block := $(shell basename $(shell cat .block-name 2>/dev/null || echo $(PWD)))
 image = block:$(block)
 version = $(shell git rev-parse --abbrev-ref HEAD)
@@ -6,31 +5,9 @@ ifeq (HEAD,$(version))
 version = $(shell git rev-parse HEAD)
 endif
 
-ifeq (stop,$(firstword $(MAKECMDGOALS)))
-STOP := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-$(eval $(STOP):;@:)
-endif
-
-ifeq (start,$(firstword $(MAKECMDGOALS)))
-START := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-$(eval $(START):;@:)
-endif
-
-ifeq (status,$(firstword $(MAKECMDGOALS)))
-STATUS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-$(eval $(STATUS):;@:)
-endif
-
 ifeq (ssh,$(firstword $(MAKECMDGOALS)))
 CONTAINER := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(CONTAINER):;@:)
-endif
-
-ifeq (cat,$(firstword $(MAKECMDGOALS)))
-CONTAINER := $(strip $(wordlist 2,2,$(MAKECMDGOALS)))
-FILE := $(strip $(wordlist 3,3,$(MAKECMDGOALS)))
-$(eval $(CONTAINER):;@:)
-$(eval $(FILE):;@:)
 endif
 
 ifeq (rebuild-one,$(firstword $(MAKECMDGOALS)))
@@ -113,19 +90,16 @@ commit:
 publish:
 	docker push $(registry)/$(image)
 
-daemon:
+recycle:
 	$(make) clean
-	$(make) daemon-sshd
-	$(make) daemon-ssh
+	$(make) docker-run
+	$(make) wait-ssh
 
-daemon-sshd:
+docker-run:
 	docker run -d -ti -v /data:/data -v /config:/config --name $(service) -p :$(ssh_port) --network ubuntu_default $(registry)/$(image)
 
-daemon-ssh:
-	$(service_ssh_exec) -- true 2>/dev/null || { sleep 1; $(make) daemon-ssh; }
-
-service-ssh:
-	@$(service_ssh_exec) -- true || { sleep 1; $(make) service-ssh; }
+wait-ssh:
+	$(service_ssh_exec) -- true 2>/dev/null || { sleep 1; $(make) wait-ssh; }
 
 compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
@@ -140,16 +114,9 @@ down:
 destroy:
 	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans $(opt)
 
-shell:
-	@$(make) daemon
-	@$(make) ssh
-
 ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
 	ssh -t -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) || true
-
-cat:
-	@ssh -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip) tee $(FILE)
 
 enter:
 	docker exec -ti -u $(ssh_remote_user) $(service) bash -il -c 'cd; exec bash -il'
@@ -171,7 +138,7 @@ docker:
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
-	$(make) daemon block-setup block-bootstrap minimize image-update
+	$(make) recycle block-setup block-bootstrap minimize image-update
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
@@ -203,18 +170,6 @@ prune:
 
 clean:
 	docker rm -f $(service) 2>/dev/null || true
-
-stop:
-	@docker exec $(service) sv stop ./service/$(STOP)
-
-start:
-	@docker exec $(service) sv start ./service/$(START)
-
-status:
-	@docker exec $(service) sv status ./service/$(STATUS)
-
-ps:
-	@$(docker_compose) ps
 
 reset-time:
 	docker run -it --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i date -u $(shell date -u +%m%d%H%M%Y)
