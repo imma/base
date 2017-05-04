@@ -54,7 +54,7 @@ service ?= $(CONTAINER)
 service_ssh_port = $(shell docker inspect $(service) 2>/dev/null | jq -r '.[].NetworkSettings.Ports["$(ssh_port)/tcp"][].HostPort')
 service_ssh_exec = $(ssh_prefix) ssh -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $(service_ssh_port) $(ssh_remote_user)@$(ssh_vip)
 
-docker_compose ?= env BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
+docker_compose ?= env COMPOSE_PROJECT_NAME="$(block)" BLOCK_REGISTRY=$(registry) BLOCK_SSH_PORT=$(ssh_port) NET_PREFIX=$(NET_PREFIX) NET_SUBNET=$(NET_SUBNET) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
@@ -111,14 +111,13 @@ compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) up -d --remove-orphans $(opt)
-	$(docker_compose) scale $(shell echo $(SCALE) | tr '_' '=' )
+	$(docker_compose) up -d --remove-orphans $(opt) $(shell echo $(SCALE) | runmany 'echo "--scale $$1 "' | tr '_' '=' )
 
 down:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) stop $(opt)
+	$(docker_compose) stop $(opt)
 
 destroy:
-	env COMPOSE_PROJECT_NAME="$(block)" $(docker_compose) down --remove-orphans $(opt)
+	$(docker_compose) down --remove-orphans $(opt)
 
 ssh:
 	@$(ssh_prefix) ssh-keygen -R '[$(ssh_vip)]:$(service_ssh_port)' 2>/dev/null >/dev/null
@@ -197,6 +196,3 @@ download:
 
 upload:
 	cat compose.json | jq -r '.services | keys[]' | runmany 4 'docker tag {$(registry),$(hub)}/block:$$1; docker push $(hub)/block:$$1'
-
-scale:
-	$(docker_compose) scale $(shell echo $(SCALE) | tr '_' '=' )
