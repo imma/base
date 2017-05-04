@@ -74,6 +74,8 @@ cache=
 squid=
 endif
 
+aws_type ?= c4.large
+
 print-%:
 	@echo '$*=$($*)'
 	@echo '  origin = $(origin $*)'
@@ -146,7 +148,7 @@ docker-block:
 	$env (make) block-setup block-bootstrap minimize image-update
 
 aws:
-	env BASEBOX_NAME_OVERRIDE=block:ubuntu $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws_fr
+	env BASEBOX_NAME_OVERRIDE=block:ubuntu AWS_TYPE=$(aws_type) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws_fr
 
 aws_fr:
 	time $(make) aws-block
