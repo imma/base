@@ -111,7 +111,7 @@ compose:
 	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
-	$(docker_compose) up -d --remove-orphans $(opt) $(shell echo $(SCALE) | runmany 'echo "--scale $$1 "' | tr '_' '=' )
+	$(docker_compose) up -d --remove-orphans $(opt) $(shell echo $(SCALE) | runmany 'test -n "$$1" && echo "--scale $$1 "' | tr '_' '=' )
 
 down:
 	$(docker_compose) stop $(opt)
