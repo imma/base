@@ -148,7 +148,7 @@ aws:
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
 	$(make) recycle 
-	$env (make) block-setup block-bootstrap minimize image-update
+	env $(make) block-setup block-bootstrap minimize image-update
 
 aws-block:
 	van recycle
