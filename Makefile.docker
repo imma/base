@@ -137,7 +137,7 @@ home-deploy:
 
 docker_default = docker-block
 
-aws_default = docker-block
+aws_default = aws-block
 
 docker:
 	$(make) $(docker_default)
