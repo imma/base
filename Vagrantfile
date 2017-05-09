@@ -48,5 +48,11 @@ Vagrant.configure("2") do |config|
     override.vm.provision "shell", path: ci_script, args: [], privileged: true
 
     v.ami = ENV['AWS_AMI'] || 'id-aws-ami-not-set'
+		v.tags = {
+			"ManagedBy" => "vagrant",
+			"Env" => "build",
+			"App" => "vagrant",
+      "Service" => Dir.pwd.split("/")[-1]
+		}
   end
 end
