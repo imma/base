@@ -62,7 +62,7 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu
 
-make = $(MAKE) cache=$(cache) squid=$(squid)
+make = $(MAKE) cache=$(cache) squid=$(squid) REBUILD=$(REBUILD)
 
 hub ?= docker.nih
 registry ?= docker.nih
@@ -195,7 +195,7 @@ reset-time:
 rebuild-one: ../$(REBUILD)
 	@figlet $(REBUILD) 2>/dev/null || true
 	@touch .$(REBUILD).building
-	cd ../$(REBUILD) && $(extra) make docker
+	cd ../$(REBUILD) && $(extra) $(make) docker
 	@rm -f .$(REBUILD).building
 
 rebuild-all:
