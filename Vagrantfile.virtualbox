@@ -1,35 +1,9 @@
-require "net/ssh"
-
-module Net::SSH
-  class << self
-    alias_method :old_start, :start
-
-    def start(host, username, opts)
-      opts[:keys_only] = false
-      self.old_start(host, username, opts)
-    end
-  end
-end
-
-Vagrant.configure("2") do |config|
-  module Vagrant
-    module Util
-      class Platform
-        class << self
-          def solaris?
-            true
-          end
-        end
-      end
-    end
-  end
-end
-
 Vagrant.configure("2") do |config|
   config.ssh.shell = "bash"
   config.ssh.username = "ubuntu"
   config.ssh.forward_agent = true
   config.ssh.insert_key = false
+  config.ssh.keys_only = false
 
   config.vm.provider "virtualbox" do |v, override|
     override.nfs.functional = true
