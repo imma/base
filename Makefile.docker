@@ -162,7 +162,7 @@ block-setup:
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
 
 block-bootstrap:
-	$(service_ssh_exec) -- block bootstrap
+	$(service_ssh_exec) -- block bootstrap $(REBUILD)
 	$(make) block-finish
 
 block-finish:
