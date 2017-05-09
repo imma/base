@@ -21,6 +21,8 @@ REBUILD := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(REBUILD):;@:)
 endif
 
+REBUILD ?= $(rebuild)
+
 ifeq (scale,$(firstword $(MAKECMDGOALS)))
 SCALE := $(strip $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS)))
 $(eval $(SCALE):;@:)
@@ -62,7 +64,7 @@ env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
 home = ubuntu
 
-make = $(MAKE) cache=$(cache) squid=$(squid) REBUILD=$(REBUILD)
+make = $(MAKE) cache=$(cache) squid=$(squid) rebuild=$(REBUILD)
 
 hub ?= docker.nih
 registry ?= docker.nih
