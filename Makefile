@@ -1,6 +1,9 @@
 include Makefile.dream
 include Makefile.docker
 
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
+
 docker_default = docker-base
 
 aws_default = aws-base
@@ -10,6 +13,9 @@ docker-base:
 	time $(make) build
 
 aws-base:
+	cd fogg && fogg exec chexec $(current_dir) $(make) aws-base-fr
+
+aws-base-fr:
 	$(MAKE)
 	time env AWS_TYPE=$(aws_type) van rebase base
 
