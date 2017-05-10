@@ -17,6 +17,11 @@ Vagrant.configure("2") do |config|
     v.has_ssh = true
     v.ports = [ ":2222" ]
     v.create_args = [ "--network", "ubuntu_default" ]
+
+    (0..9).each do |d|
+      config.vm.define "d#{d}", primary: (d == 0), autostart: (d > 0) do |dcker|
+      end
+    end
   end
 
   config.vm.provider "virtualbox" do |v, override|
