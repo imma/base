@@ -13,9 +13,6 @@ docker-base:
 	time $(make) build
 
 aws-base:
-	cd fogg && fogg exec chexec $(current_dir) $(make) aws-base-fr
-
-aws-base-fr:
 	$(MAKE)
 	time env AWS_TYPE=$(aws_type) van rebase base
 

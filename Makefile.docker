@@ -145,7 +145,10 @@ docker:
 	$(make) $(docker_default)
 
 aws:
-	env BASEBOX_NAME_OVERRIDE=block:ubuntu AWS_TYPE=$(aws_type) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
+	cd fogg && fogg exec chexec $(BLOCK_PATH)/$(block) $(make) aws-fr
+
+aws-fr:
+	env VAGRANT_CWD=$(shell pwd) BASEBOX_NAME_OVERRIDE=block:ubuntu AWS_TYPE=$(aws_type) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
