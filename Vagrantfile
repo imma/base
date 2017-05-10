@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
   end
 
   (0..9).each do |d|
-    config.vm.define (d == 0 ? "default" : "v#{d}"), primary: (d == 0), autostart: (d > 0) do |dcker|
+    config.vm.define (d == 0 ? "default" : "v#{d}"), primary: (d == 0), autostart: (d == 0) do |dcker|
     end
   end
 end
