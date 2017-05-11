@@ -1,3 +1,5 @@
+require 'socket'
+
 ci_script = "#{ENV['BLOCK_PATH']}/limbo/script/cloud-init-bootstrap"
 
 Vagrant.configure("2") do |config|
@@ -58,7 +60,7 @@ Vagrant.configure("2") do |config|
   end
 
   (0..9).each do |d|
-    config.vm.define (d == 0 ? "default" : "v#{d}"), primary: (d == 0), autostart: (d == 0) do |dcker|
+    config.vm.define "v#{d}-#{Socket.gethostname}", primary: (d == 0), autostart: (d == 0) do |dcker|
     end
   end
 end
