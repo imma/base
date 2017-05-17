@@ -24,6 +24,7 @@ function main {
   (set +f; rm -rf /tmp/*)
 
   # Cleanup apt cache
+  dpkg --configure -a
   apt-get -y autoremove --purge
   apt-get -y clean
 
