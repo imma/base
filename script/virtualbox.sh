@@ -3,7 +3,7 @@
 set -exfu
 
 function main {
-  aptitude install -y build-essential perl dkms
+  apt-get install -y build-essential perl dkms
 
   echo "==> Installing VirtualBox guest additions"
 
