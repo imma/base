@@ -140,6 +140,7 @@ aws_default = aws-block
 
 docker:
 	$(make) $(docker_default)
+	$(make) tag_hub
 
 aws:
 	chexec $(BLOCK_PATH)/$(block) $(make) aws-fr
