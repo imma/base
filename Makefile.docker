@@ -66,7 +66,7 @@ home = ubuntu
 
 make = $(MAKE) cache=$(cache) squid=$(squid) rebuild=$(REBUILD)
 
-hub ?= docker.nih
+hub ?= $(shell aws ecr describe-repositories | jq -r --arg repo block '.repositories | map(select(.repositoryName == $$repo))[].repositoryUri' | cut -d/ -f1)
 registry ?= docker.nih
 cache ?= cache.nih
 squid ?= http://$(cache):3128
@@ -112,9 +112,6 @@ docker-run:
 
 wait-ssh:
 	$(service_ssh_exec) -- true 2>/dev/null || { sleep 1; $(make) wait-ssh; }
-
-compose:
-	jq -n --arg registry "$(registry)" --arg block "$(block)" '{version:"2", volumes:{data:{},config:{}}, services:{"\($$block)":{volumes:["data:/data","config:/config"],ports:["$(ssh_port)"],"image":"\($$registry)/block:\($$block)","hostname":"\($$block)"}}}' > compose.json
 
 up:
 	$(docker_compose) up -d --remove-orphans $(opt) $(shell echo $(SCALE) | runmany 'test -n "$$1" && echo "--scale $$1 "' | tr '_' '=' )
@@ -203,9 +200,6 @@ rebuild-one: ../$(REBUILD)
 
 rebuild-all:
 	cat compose.json | jq -r '.services | keys[]' | grep -v ubuntu | runmany 4 '$(make) rebuild-one $$1 || true'
-
-local:
-	docker images | grep $(hub)/block | awk '{print $$2}' | runmany 'docker tag $(hub)/block:$$1 $(registry)/block:$$1 && docker rmi $(hub)/block:$$1'
 
 download:
 	cat compose.json | jq -r '.services | keys[]' | runmany 4 'docker pull $(hub)/block:$$1 && docker tag $(hub)/block:$$1 $(registry)/block:$$1'
