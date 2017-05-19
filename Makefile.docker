@@ -91,7 +91,10 @@ nc:
 	@true
 
 build:
-	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) . && docker tag $(registry)/$(image) $(hub)/$(image); fi
+	if [[ -d .d ]]; then cd .d && docker build --no-cache -t $(registry)/$(image) --build-arg CACHE="$(cache)" $(opt) .; fi
+
+tag_hub:
+	docker tag $(registry)/$(image) $(hub)/$(image)
 
 commit:
 	docker commit $(service) $(registry)/$(image) $(opt)

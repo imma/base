@@ -11,6 +11,7 @@ aws_default = aws-base
 docker-base:
 	$(MAKE)
 	time $(make) build
+	$(make) tag_hub
 
 aws-base:
 	$(MAKE)
