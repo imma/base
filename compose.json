@@ -1,0 +1,15 @@
+{
+  "version": "2.1",
+  "networks": {
+    "default": {
+      "external": {
+        "name": "ubuntu_default"
+      }
+    }
+  },
+  "services": {
+    "base": {
+      "image": "${BLOCK_REGISTRY}/block:base"
+    }
+  }
+}
