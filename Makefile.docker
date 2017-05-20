@@ -143,8 +143,14 @@ docker:
 aws:
 	chexec $(BLOCK_PATH)/$(block) $(make) aws-fr
 
+aws-fast:
+	chexec $(BLOCK_PATH)/$(block) $(make) aws-fast-fr
+
 aws-fr:
 	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
+
+aws-fast-fr:
+	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws-block-fast
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
@@ -155,6 +161,11 @@ aws-block:
 	van recycle
 	$(make) block-setup block-bootstrap minimize
 	van reuse $(block)
+
+aws-block-fast:
+	van recycle
+	$(make) block-setup block-bootstrap minimize
+	van export $(block)
 
 block-setup:
 	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
