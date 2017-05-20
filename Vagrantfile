@@ -50,6 +50,7 @@ Vagrant.configure("2") do |config|
 
     override.vm.provision "shell", path: ci_script, args: [], privileged: true
 
+    v.iam_instance_profile_name = ENV['AWS_IAM'] || "id-iam-role-not-set"
     v.ami = ENV['AWS_AMI'] || 'id-aws-ami-not-set'
 		v.tags = {
 			"ManagedBy" => "vagrant",
