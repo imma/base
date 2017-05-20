@@ -150,7 +150,7 @@ aws-fr:
 	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
 
 aws-fast-fr:
-	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= aws-block-fast
+	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)-fast
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
