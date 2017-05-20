@@ -14,7 +14,7 @@ docker-base:
 
 aws-base:
 	$(MAKE)
-	time env AWS_TYPE=$(aws_type) van rebase base
+	time env van rebase base
 
 reset:
 	docker pull ubuntu:xenial

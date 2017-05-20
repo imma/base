@@ -76,8 +76,6 @@ cache=
 squid=
 endif
 
-aws_type ?= c4.large
-
 print-%:
 	@echo '$*=$($*)'
 	@echo '  origin = $(origin $*)'
@@ -146,7 +144,7 @@ aws:
 	chexec $(BLOCK_PATH)/$(block) $(make) aws-fr
 
 aws-fr:
-	env VAGRANT_CWD=$(shell pwd) BASEBOX_NAME_OVERRIDE=block:ubuntu AWS_TYPE=$(aws_type) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
+	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
