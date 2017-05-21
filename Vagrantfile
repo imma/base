@@ -17,7 +17,6 @@ Vagrant.configure("2") do |config|
 
     v.image = "docker.nih/block:#{Dir.pwd.split("/")[-1]}"
     v.has_ssh = true
-    v.ports = [ ":2222" ]
     v.create_args = [ "--network", "ubuntu_default" ]
   end
 
@@ -60,7 +59,7 @@ Vagrant.configure("2") do |config|
 		}
   end
 
-  (0..9).each do |d|
+  (0..0).each do |d|
     config.vm.define "v#{d}-#{Socket.gethostname}", primary: (d == 0), autostart: (d == 0) do |dcker|
     end
   end
