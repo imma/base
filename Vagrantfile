@@ -14,10 +14,11 @@ Vagrant.configure("2") do |config|
     override.vm.synced_folder '/config', '/config'
 
     override.ssh.guest_port = "2222"
+    override.vm.network "forwarded_port", id: "ssh", disabled: true, host: 2222, guest: 2222
 
+    v.docker_network = "ubuntu_default"
     v.image = "docker.nih/block:#{Dir.pwd.split("/")[-1]}"
     v.has_ssh = true
-    v.create_args = [ "--network", "ubuntu_default" ]
   end
 
   config.vm.provider "virtualbox" do |v, override|
