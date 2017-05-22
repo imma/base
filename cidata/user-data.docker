@@ -24,7 +24,11 @@ runcmd:
   - "apt-get update"
   - "apt-get install -y net-tools sudo dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude" 
   - "apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool gettext-base runit nfs-common portmap"
+  - "apt-get install -y docker.io"
   - "apt-get purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core"
+  - "usermod -a -G lxd ubuntu || true"
+  - "usermod -a -G docker ubuntu || true"
+  - "usermod -a -G staff ubuntu || true"
   - "mkdir -p /var/run/sshd"
 
 package_upgrade: true
