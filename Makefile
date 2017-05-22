@@ -10,11 +10,11 @@ aws_default = aws-base
 
 docker-base:
 	$(MAKE)
-	time $(make) build
+	$(make) build
 
 aws-base:
 	$(MAKE)
-	time env van rebase base
+	env AWS_TYPE=c4.large BASEBOX_NAME_OVERRIDE=block:base GOLDEN_NAME=block-base van rebase base
 
 reset:
 	docker pull ubuntu:xenial
@@ -30,9 +30,9 @@ virtualbox:
 
 virtualbox-iso:
 	$(MAKE) new-cidata
-	time env http_proxy=http://$(cache_vip):3128 plane media base
+	env http_proxy=http://$(cache_vip):3128 plane media base
 
 virtualbox-ovf:
 	$(MAKE) new-cidata
-	time env http_proxy=http://$(cache_vip):3128 OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
+	env http_proxy=http://$(cache_vip):3128 OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
 
