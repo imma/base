@@ -16,7 +16,7 @@ aws-base:
 	$(MAKE)
 	env van rebase base
 
-reset:
+reset-docker:
 	docker pull ubuntu:xenial
 	docker tag ubuntu:xenial $(registry)/block:xenial
 	docker tag $(registry)/block:xenial $(registry)/$(image)
