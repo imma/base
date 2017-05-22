@@ -14,7 +14,7 @@ docker-base:
 
 aws-base:
 	$(MAKE)
-	env AWS_TYPE=c4.large BASEBOX_NAME_OVERRIDE=block:base GOLDEN_NAME=block-base van rebase base
+	env van rebase base
 
 reset:
 	docker pull ubuntu:xenial
