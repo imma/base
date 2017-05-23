@@ -1,6 +1,7 @@
 org := $(shell (cat Blockfile.json 2>/dev/null || echo '{}') | jq -r '.block.org//"imma"')
 block := $(shell basename $(shell cat .block-name 2>/dev/null || echo $(PWD)))
-image = block:$(block)
+tag ?= $(block)
+image = block:$(tag)
 version = $(shell git rev-parse --abbrev-ref HEAD)
 ifeq (HEAD,$(version))
 version = $(shell git rev-parse HEAD)
@@ -168,7 +169,7 @@ aws-block-fast:
 	van export $(block)
 
 block-setup:
-	jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site
+	if [[ -e .git ]]; then jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }'; else cat Blockfile.json; fi | $(service_ssh_exec) -- tee Blockfile.json.site
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
