@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "docker" do |v, override|
     override.vm.synced_folder '/data', '/data'
     override.vm.synced_folder '/config', '/config'
+    override.vm.synced_folder '/var/run/docker.sock', '/var/run/docker.sock'
 
     override.ssh.guest_port = "2222"
     override.vm.network "forwarded_port", id: "ssh", disabled: true, host: 2222, guest: 2222
