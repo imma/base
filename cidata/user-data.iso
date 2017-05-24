@@ -14,7 +14,7 @@ users:
    sudo: "ALL=(ALL) NOPASSWD: ALL"
    ssh-authorized-keys: [ ${CONTAINER_SSH_KEY} "command=false ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDq8qhg+hSlHuXtvXvMB4sNvvdTbXRs8Sv88Jcui8IFbykizVREAkB4Qx+VSelcZoXTrlyFGvXFtYJKRatuiItewxjB/R6MHV8B5aHs24vfNz/12j2DDTSbO5/mrTkBo1dP4Wpag74filL5t6Var4FUHceLzQ/cpVOncGpZyHAw41NsGIjYUjyRpKtKucB6qXnRs9hQtTI8b8k1PvQMlTDJWPkoJw9hI7Ypc44sBk89F+Mfy5xR6+SXbDSGi6TQum30wa6FuwWKcPLcRUHUCjeM9i9Mq6WnAxd0yiA0L2p7YPO8tFlpxwZIQOcb727irLhtKAZJwS8mUb2r4tw/Md1m fake"]
 
-manage_etc_hosts: true
+manage_etc_hosts: false
 
 runcmd:
   - "apt-get update"
@@ -23,8 +23,8 @@ runcmd:
   - "env - add-apt-repository -y ppa:git-core/ppa"
   - "env - add-apt-repository -y ppa:ubuntu-lxc/lxd-stable"
   - "apt-get update"
-  - "apt-get install -y net-tools sudo dnsmasq git curl unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude" 
-  - "apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool gettext-base runit nfs-common portmap"
+  - "apt-get install -y net-tools sudo dnsmasq git curl rsync unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude runit nfs-common portmap gettext-base" 
+  - "apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool"
   - "apt-get install -y docker.io"
   - "apt-get purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core"
   - "usermod -a -G lxd ubuntu || true"
