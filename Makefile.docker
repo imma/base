@@ -148,10 +148,10 @@ aws-fast:
 	chexec $(BLOCK_PATH)/$(block) $(make) aws-fast-fr
 
 aws-fr:
-	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
+	env VAGRANT_CWD=$(PWD) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
 
 aws-fast-fr:
-	env VAGRANT_CWD=$(shell pwd) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)-fast
+	env VAGRANT_CWD=$(PWD) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)-fast
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
@@ -268,9 +268,9 @@ golden-image:
 	block require env AWS_TYPE=c4.large \
 		BASEBOX_NAME_OVERRIDE="block:ubuntu" \
 		GOLDEN_NAME="block-$(current_dir)" \
-		GOLDEN_BLOCK="$(pwd)/Blockfile.json" \
+		GOLDEN_BLOCK="$(PWD)/Blockfile.json" \
 		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
 			env AWS_AMI=$(FOGG_AMI) make aws-fast
 
 golden-docker:
-	make docker tag="$(shell basename $(shell pwd))" rebuild="$(shell cat .block-name)"
+	make docker tag="$(shell basename $(PWD))" rebuild="$(shell cat .block-name)"
