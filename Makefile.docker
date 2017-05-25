@@ -176,6 +176,7 @@ block-setup:
 
 block-bootstrap:
 	$(service_ssh_exec) -- block bootstrap $(REBUILD)
+	$(service_ssh_exec) -- script/deploy container $(REBUILD)
 	$(make) block-finish
 
 block-finish:
