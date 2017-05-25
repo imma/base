@@ -268,6 +268,7 @@ golden-image:
 	block require env AWS_TYPE=c4.large \
 		BASEBOX_NAME_OVERRIDE="block:ubuntu" \
 		GOLDEN_NAME="block-$(current_dir)" \
+		GOLDEN_BLOCK="$(pwd)/Blockfile.json" \
 		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
 			env AWS_AMI=$(FOGG_AMI) make aws-fast
 
