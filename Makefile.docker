@@ -198,12 +198,12 @@ reset-time:
 	docker run -it --rm --privileged --pid=host debian nsenter -t 1 -m -u -n -i date -u $(shell date -u +%m%d%H%M%Y)
 
 download:
-	docker pull $(hub)/block:$(image)
+	docker pull $(hub)/$(image)
 	docker tag $(hub)/$(image) $(registry)/$(image)
 
 upload:
 	docker tag $(registry)/$(image) $(hub)/$(image)
-	docker push $(hub)/block:$(image)
+	docker push $(hub)/$(image)
 
 current_dir := $(shell basename $(PWD))
 
