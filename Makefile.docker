@@ -136,7 +136,6 @@ aws_default = aws-block
 
 docker:
 	$(make) $(docker_default)
-	docker tag $(registry)/$(image) $(hub)/$(image)
 
 aws:
 	chexec $(BLOCK_PATH)/$(block) $(make) aws-fr
