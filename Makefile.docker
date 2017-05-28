@@ -166,7 +166,7 @@ aws-block-fast:
 
 block-setup:
 	if [[ -e .git ]]; then jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }' | $(service_ssh_exec) -- tee Blockfile.json.site; fi
-	if [[ ! -e .git ]]; then $(service_ssh_exec) -- mkdir -p $(BLOCK_PATH)/$(block); cat Blockfile.json | $(service_ssh_exec) -- tee $(BLOCK_PATH)/$(block)/Blockfile.json; $(service_ssh_exec) -- cd $(BLOCK_PATH)/$(block) \&\&& git init; fi
+	if [[ ! -e .git ]]; then $(service_ssh_exec) -- mkdir -p $(BLOCK_PATH)/$(block); cat Blockfile.json | $(service_ssh_exec) -- tee $(BLOCK_PATH)/$(block)/Blockfile.json; $(service_ssh_exec) -- cd $(BLOCK_PATH)/$(block) \&\& git init; fi
 	if [[ -e .git ]]; then $(service_ssh_exec) -- block clone \&\& make cache; fi
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
 
