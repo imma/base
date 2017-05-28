@@ -165,7 +165,8 @@ aws-block-fast:
 	van export $(block)
 
 block-setup:
-	if [[ -e .git ]]; then jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }'; else cat Blockfile.json; fi | $(service_ssh_exec) -- tee Blockfile.json.site
+	if [[ -e .git ]]; then jq -n --arg block $(block) --arg org $(org) --arg version $(version) '{ require: [ "\($$org)/\($$block)@\($$version)" ], run: { "\($$block)": {}} }'; else jq -n --arg block '{ require: [ "\($$block)" ]  }'; fi | $(service_ssh_exec) -- tee Blockfile.json.site
+	if [[ ! -e .git ]]; then $(service_ssh_exec) -- mkdir -p $(BLOCK_PATH)/$(block); cat Blockfile.json | $(service_ssh_exec) -- tee $(BLOCK_PATH)/$(block)/Blockfile.json; fi
 	$(service_ssh_exec) -- block clone
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/$(block) \&\& home update
