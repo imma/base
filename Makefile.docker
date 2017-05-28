@@ -259,5 +259,5 @@ ubuntu-docker:
 			env make docker
 
 golden-docker:
-	make docker tag="$(shell basename $(PWD))" rebuild="$(shell cat .block-name)"
+	make docker tag="$(shell basename $(PWD))" rebuild="$(block)"
 
