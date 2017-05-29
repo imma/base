@@ -1,6 +1,6 @@
 require 'socket'
 
-ci_script = "#{ENV['BLOCK_PATH']}/limbo/script/cloud-init-bootstrap"
+ci_script = "#{ENV['_limbo_home']}/script/cloud-init-bootstrap"
 
 Vagrant.configure("2") do |config|
   config.ssh.shell = "bash"
