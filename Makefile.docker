@@ -239,9 +239,6 @@ ubuntu-golden-aws:
 	env FOGG_AMI=$(ubuntu_ami) \
 		make golden-image
 
-golden: 
-	$(make) golden-aws
-
 golden-aws:
 	env FOGG_AMI=$(golden_ami) \
 		make golden-image
