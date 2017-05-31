@@ -62,6 +62,9 @@ Vagrant.configure("2") do |config|
 
   (0..0).each do |d|
     config.vm.define "#{Socket.gethostname}-v#{d}", primary: (d == 0), autostart: (d == 0) do |dcker|
+      config.vm.provider "docker" do |v, override|
+        v.name = "#{Socket.gethostname}-v#{d}"
+      end
     end
   end
 end
