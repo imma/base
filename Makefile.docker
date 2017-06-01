@@ -172,6 +172,8 @@ block-bootstrap:
 	$(make) block-finish
 
 block-finish:
+	$(service_ssh_exec) -- make cache
+	$(service_ssh_exec) -- block compile service app
 	$(service_ssh_exec) -- block compile service $(block)
 	$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/ \|\| true
 
