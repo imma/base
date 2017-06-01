@@ -127,7 +127,6 @@ remote:
 
 home-deploy:
 	script/deploy $(service_ssh_exec)
-	$(service_ssh_exec) -- rm -rf service \&\& git checkout service
 	$(service_ssh_exec) -- block compile service sshd \&\& ln -nfs ../sv/sshd service/
 
 docker_default = docker-block
@@ -175,8 +174,7 @@ block-bootstrap:
 block-finish:
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/app \&\& block compile service
-	$(service_ssh_exec) -- block compile service $(block)
-	$(service_ssh_exec) -- test -d sv/$(block) \&\& ln -nfs ../sv/$(block) service/ \|\| true
+	$(service_ssh_exec) -- ln -nfs ../sv/* service/ \|\| true
 
 minimize:
 	@true
