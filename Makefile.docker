@@ -173,7 +173,6 @@ block-bootstrap:
 block-finish:
 	$(service_ssh_exec) -- make cache
 	$(service_ssh_exec) -- cd work/app \&\& block compile service
-	$(service_ssh_exec) -- cd service \&\& ln -nfsv $(shell $(service_ssh_exec) -- cd service \&\& find ../sv/ -mindepth 1 -maxdepth 1 -type d) .
 
 minimize:
 	@true
