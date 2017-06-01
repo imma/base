@@ -133,7 +133,7 @@ docker_default = docker-block
 aws_default = aws-block
 
 docker:
-	$(make) docker_fr tag="$(shell basename $(PWD))" rebuild="app"
+	$(make) docker_fr tag="$(shell basename $(PWD))"
 
 docker_fr:
 	$(make) $(docker_default)
@@ -153,7 +153,7 @@ aws-fast-fr:
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
 	$(make) recycle 
-	env $(make) block-setup block-bootstrap minimize image-update
+	env $(make) rebuild=app block-setup block-bootstrap minimize image-update
 
 aws-block:
 	van recycle
