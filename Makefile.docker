@@ -54,7 +54,7 @@ ssh_prefix ?= ssh
 ssh_suffix ?= -p $(service_ssh_port) $(ssh_remote_user)@$(service_ssh_ip)
 service_ssh_exec ?= $(ssh_prefix) -A -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $(ssh_suffix)
 
-docker_compose ?= env COMPOSE_PROJECT_NAME="$(block)" BLOCK_REGISTRY=$(hub) docker-compose -f compose.json
+docker_compose ?= env BLOCK_REGISTRY=$(hub) docker-compose -f compose.json
 
 env_cache = env http_proxy=$(squid) https_proxy=$(squid)
 
