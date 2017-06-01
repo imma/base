@@ -133,6 +133,9 @@ docker_default = docker-block
 aws_default = aws-block
 
 docker:
+	$(make) docker_fr tag="$(shell basename $(PWD))" rebuild="app"
+
+docker_fr:
 	$(make) $(docker_default)
 
 aws:
@@ -253,7 +256,4 @@ ubuntu-docker:
 	block require env \
 		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
 			env make docker
-
-golden-docker:
-	make docker tag="$(shell basename $(PWD))" rebuild="app"
 
