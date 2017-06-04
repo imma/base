@@ -134,10 +134,10 @@ docker_fr:
 	$(make) $(docker_default)
 
 aws:
-	chexec $(BLOCK_PATH)/$(block) $(make) nc aws-fr
+	chexec $(_$(block)_home) $(make) nc aws-fr
 
 aws-fast:
-	chexec $(BLOCK_PATH)/$(block) $(make) nc aws-fast-fr
+	chexec $(_$(block)_home) $(make) nc aws-fast-fr
 
 aws-fr:
 	env VAGRANT_CWD=$(PWD) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)

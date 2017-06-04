@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     v.customize [ 
       'storageattach', :id, 
       '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, 
-      '--type', 'dvddrive', '--medium', "#{ENV['BLOCK_PATH']}/base/cidata.vagrant.iso"
+      '--type', 'dvddrive', '--medium', "#{ENV['_base_home']}/cidata.vagrant.iso"
     ]
   end
 
