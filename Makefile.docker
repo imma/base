@@ -213,7 +213,7 @@ base-image:
 	block require env AWS_TYPE=c4.large \
 		BASEBOX_NAME_OVERRIDE="block:base" \
 		GOLDEN_NAME="block-base" \
-		fogg env chexec "$(BLOCK_PATH)/base" \
+		fogg env chexec "$(_base_home)" \
 			env AWS_AMI=$(FOGG_AMI) make aws
 
 base-ubuntu-aws:
@@ -228,7 +228,7 @@ ubuntu-image:
 	block require env AWS_TYPE=c4.large \
 		BASEBOX_NAME_OVERRIDE="block:ubuntu" \
 		GOLDEN_NAME="block-ubuntu" \
-		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
+		fogg env chexec "$(_ubuntu_home)" \
 			env AWS_AMI=$(FOGG_AMI) make aws
 
 ubuntu-golden-aws:
@@ -244,11 +244,11 @@ golden-image:
 		BASEBOX_NAME_OVERRIDE="block:ubuntu" \
 		GOLDEN_NAME="block-$(current_dir)" \
 		GOLDEN_BLOCK="$(PWD)/Blockfile.json" \
-		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
+		fogg env chexec "$(_ubuntu_home)" \
 			env AWS_AMI=$(FOGG_AMI) make aws-fast
 
 ubuntu-docker:
 	block require env \
-		fogg env chexec "$(BLOCK_PATH)/ubuntu" \
+		fogg env chexec "$(_ubuntu_home)" \
 			env make docker
 
