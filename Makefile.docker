@@ -140,10 +140,10 @@ aws-fast:
 	chexec $(_$(block)_home) $(make) nc aws-fast-fr
 
 aws-fr:
-	env VAGRANT_CWD=$(PWD) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
+	$(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)
 
 aws-fast-fr:
-	env VAGRANT_CWD=$(PWD) $(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)-fast
+	$(make) ssh_prefix="van vagrant ssh --" ssh_suffix= $(aws_default)-fast
 
 docker-block:
 	docker tag $(registry)/block:$(home) $(registry)/$(image)
