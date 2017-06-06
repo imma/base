@@ -120,9 +120,6 @@ ssh:
 remote:
 	$(service_ssh_exec) -- make $(REMOTE)
 
-home-deploy:
-	script/deploy $(service_ssh_exec)
-
 docker_default = docker-block
 
 aws_default = aws-block
