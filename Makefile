@@ -1,5 +1,5 @@
 include Makefile.dream
-include Makefile.docker
+include $(_ubuntu_home)/Makefile.build
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
