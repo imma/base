@@ -16,13 +16,7 @@ users:
 manage_etc_hosts: false
 
 runcmd:
-  - "apt-get update"
   - "dpkg --remove-architecture i386"
-  - "apt-get install -y software-properties-common python-software-properties"
-  - "env - add-apt-repository -y ppa:git-core/ppa"
-  - "apt-get update"
-  - "apt-get install -y net-tools sudo dnsmasq git curl rsync unzip perl ruby python language-pack-en build-essential vim man screen tmux openssh-server aptitude runit nfs-common portmap gettext-base" 
-  - "apt-get install -y libffi-dev libssl-dev libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool"
   - "apt-get purge -y nano mlocate ubuntu-release-upgrader-core update-manager-core"
   - "mkdir -p /var/run/sshd"
 
