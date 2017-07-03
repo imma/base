@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+
+  case "$(uname -s)" in
+    Linux)
+      true
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+
+  for a in gcc; do
+    if ! type -P "$a" >/dev/null; then
+      return 1
+    fi
+  done
+
+  return 0
+}
+
+main "$@"
