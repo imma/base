@@ -1,4 +1,4 @@
-include Makefile.dream
+include $(_ubuntu_home)/Makefile.dream
 include $(_ubuntu_home)/Makefile.build
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
