@@ -15,18 +15,18 @@ ADD cidata/meta-data /var/lib/cloud/seed/nocloud/meta-data
 
 RUN echo 1
 
-RUN apt-get update
-RUN apt-get install -y cloud-init sudo net-tools locales
+ADD etc/rc.local /etc/rc.local
+ADD etc/rc.server /etc/rc.server
+ADD script/bootstrap /etc/rc.bootstrap
+RUN /etc/rc.bootstrap
 RUN apt-get upgrade -y
-RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
+RUN apt-get install -y cloud-init
 RUN cloud-init init
 RUN cloud-init modules
 RUN cloud-init modules -m final
-RUN usermod -p '*' ubuntu
 
-ADD etc/rc.local /etc/rc.local
-ADD etc/rc.server /etc/rc.server
+RUN usermod -p '*' ubuntu
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/*
