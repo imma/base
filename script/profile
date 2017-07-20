@@ -2,7 +2,6 @@
 
 function _base_profile {
   local shome="${_base_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
-  PATH="$shome/bin:$shome/exec:$PATH"
 }
 
 _base_profile

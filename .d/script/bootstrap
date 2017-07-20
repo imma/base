@@ -2,20 +2,23 @@
 
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
-  source "$shome/script/profile"
 
   case "$(uname -s)" in
-    Linux)
-      true
-      ;;
-    *)
-      return 0
-      ;;
+    Linux) true ;;
+    *) return 0 ;;
   esac
+
+  set -x
 
   local loader='env DEBIAN_FRONTEND=noninteractive'
 
-  sudo apt-get update
+  if ! type -P sudo >/dev/null; then
+    apt-get update
+    $loader apt-get install -y sudo
+  else
+    sudo apt-get update
+  fi
+
   sudo $loader apt-get install -y software-properties-common python-software-properties
   sudo env - add-apt-repository -y ppa:git-core/ppa
   sudo apt-get update
@@ -31,5 +34,3 @@ function main {
 }
 
 main
-
-
