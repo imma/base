@@ -17,11 +17,13 @@ RUN echo 1
 
 ADD etc/rc.local /etc/rc.local
 ADD etc/rc.server /etc/rc.server
-ADD script/bootstrap /etc/rc.bootstrap
-RUN /etc/rc.bootstrap
-RUN apt-get upgrade -y
 
-RUN apt-get install -y cloud-init
+ADD script/bootstrap /etc/rc.bootstrap
+#RUN /etc/rc.bootstrap
+
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get install -y cloud-init sudo net-tools locales openssh-server
 RUN cloud-init init
 RUN cloud-init modules
 RUN cloud-init modules -m final
