@@ -23,7 +23,7 @@ ADD script/bootstrap /etc/rc.bootstrap
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y cloud-init sudo net-tools locales openssh-server
+RUN apt-get install -y cloud-init sudo openssh-server git
 RUN cloud-init init
 RUN cloud-init modules
 RUN cloud-init modules -m final
