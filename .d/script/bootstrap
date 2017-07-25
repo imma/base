@@ -16,22 +16,22 @@ function main {
     apt-get update
     $loader apt-get install -y sudo
   else
-    sudo apt-get update
+    ${NOSUDO} sudo apt-get update
   fi
 
-  sudo $loader apt-get install -y software-properties-common python-software-properties
-  sudo env - add-apt-repository -y ppa:git-core/ppa
-  sudo apt-get update
-  sudo $loader apt-get install -y \
-    net-tools sudo dnsmasq git curl rsync unzip perl ruby python \
+  ${NOSUDO} sudo $loader apt-get install -y software-properties-common python-software-properties
+  ${NOSUDO} sudo env - add-apt-repository -y ppa:git-core/ppa
+  ${NOSUDO} sudo apt-get update
+  ${NOSUDO} sudo $loader apt-get install -y \
+    net-tools dnsmasq git curl rsync unzip perl ruby python \
     language-pack-en build-essential vim man screen tmux openssh-server \
     aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
     libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
     autoconf automake libtool net-tools locales
 
-  sudo locale-gen en_US.UTF-8
-  sudo dpkg-reconfigure --frontend=noninteractive locales 
-  sudo update-locale LANG=en_US.UTF-8
+  ${NOSUDO} sudo locale-gen en_US.UTF-8
+  ${NOSUDO} sudo dpkg-reconfigure --frontend=noninteractive locales 
+  ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
 }
 
 main
