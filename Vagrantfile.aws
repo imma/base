@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
     v.region_config ENV['AWS_DEFAULT_REGION'],
       keypair_name: ENV['AWS_KEYPAIR'] || 'keypair-not-set',
       instance_type: ENV['AWS_TYPE'] || 't2.small',
-      ami: ENV['AWS_AMI'] || 'id-aws-ami-not-set',
+      ami: ENV['FOGG_AMI'] || 'id-aws-ami-not-set',
       iam_instance_profile_name: ENV['AWS_IAM'] || "id-iam-role-not-set"
 
     v.block_device_mapping = [
