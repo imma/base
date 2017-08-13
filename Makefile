@@ -24,15 +24,3 @@ reset-docker:
 new-cidata:
 	$(MAKE) clean-cidata
 	$(MAKE)
-
-virtualbox:
-	$(make) virtualbox-iso
-
-virtualbox-iso:
-	$(MAKE) new-cidata
-	env http_proxy=http://$(cache_vip):3128 plane media base
-
-virtualbox-ovf:
-	$(MAKE) new-cidata
-	env http_proxy=http://$(cache_vip):3128 OVF_SOURCE="$$HOME/.vagrant.d/boxes/block:xenial/0/virtualbox/box.ovf" plane repackage base
-
