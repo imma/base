@@ -3,35 +3,38 @@
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
 
-  case "$(uname -s)" in
-    Linux) true ;;
-    *) return 0 ;;
-  esac
+  if [[ "$DISTRIB_ID" == "Darwin" ]]; then
+    return 0
+  fi
 
   set -x
 
-  local loader='env DEBIAN_FRONTEND=noninteractive'
+  case "$DISTRIB_ID" in
+    Ubuntu)
+      local loader='env DEBIAN_FRONTEND=noninteractive'
 
-  if ! type -P sudo >/dev/null; then
-    apt-get update
-    $loader apt-get install -y sudo
-  else
-    ${NOSUDO} sudo apt-get update
-  fi
+      if ! type -P sudo >/dev/null; then
+        apt-get update
+        $loader apt-get install -y sudo
+      else
+        ${NOSUDO} sudo apt-get update
+      fi
 
-  ${NOSUDO} sudo $loader apt-get install -y software-properties-common python-software-properties
-  ${NOSUDO} sudo env - add-apt-repository -y ppa:git-core/ppa
-  ${NOSUDO} sudo apt-get update
-  ${NOSUDO} sudo $loader apt-get install -y \
-    net-tools dnsmasq git curl rsync unzip perl ruby python \
-    language-pack-en build-essential vim man screen tmux openssh-server \
-    aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
-    libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
-    autoconf automake libtool net-tools locales
+      ${NOSUDO} sudo $loader apt-get install -y software-properties-common python-software-properties
+      ${NOSUDO} sudo env - add-apt-repository -y ppa:git-core/ppa
+      ${NOSUDO} sudo apt-get update
+      ${NOSUDO} sudo $loader apt-get install -y \
+        net-tools dnsmasq git curl rsync unzip perl ruby python \
+        language-pack-en build-essential vim man screen tmux openssh-server \
+        aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
+        libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
+        autoconf automake libtool net-tools locales
 
-  ${NOSUDO} sudo locale-gen en_US.UTF-8
-  ${NOSUDO} sudo dpkg-reconfigure --frontend=noninteractive locales 
-  ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
+      ${NOSUDO} sudo locale-gen en_US.UTF-8
+      ${NOSUDO} sudo dpkg-reconfigure --frontend=noninteractive locales 
+      ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
+      ;;
+  esac
 }
 
 main
