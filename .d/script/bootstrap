@@ -37,6 +37,7 @@ function main {
       ;;
     Linux)
       ${NOSUDO} sudo yum install -y gcc-c++ gcc
+      ${NOSUDO} sudo yum install -y diffutils
       ;;
   esac
 }
