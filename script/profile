@@ -2,7 +2,6 @@
 
 function _base_profile {
   local shome="${_base_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
-  source "$shome/script/profile"
 
   if [[ -f /etc/lsb-release ]]; then
     . /etc/lsb-release
