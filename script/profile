@@ -11,6 +11,8 @@ function _base_profile {
   if [[ -z "${DISTRIB_ID}" ]]; then
     DISTRIB_ID="$(uname -s)"
   fi
+
+  export DISTRIB_ID
 }
 
 _base_profile
