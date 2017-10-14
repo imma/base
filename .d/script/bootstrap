@@ -35,7 +35,7 @@ function main {
       ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
       ;;
     Linux)
-      ${NOSUDO} yum install -y gcc-c++ gcc
+      ${NOSUDO} sudo yum install -y gcc-c++ gcc
       ;;
   esac
 }
