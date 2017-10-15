@@ -3,13 +3,17 @@
 function _base_profile {
   local shome="${_base_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
 
+  : ${DISTRIB_ID:=}
+
   if [[ -f /etc/lsb-release ]]; then
     . /etc/lsb-release
   fi
 
-  : ${DISTRIB_ID:=}
   if [[ -z "${DISTRIB_ID}" ]]; then
-    DISTRIB_ID="$(uname -s)"
+    DISTRIB_ID="$(awk '{print $1}' /etc/system-release)"
+    if [[ "$DISTRIB_ID" != "Amazon" ]]; then
+      DISTRIB_ID="$(uname -s)"
+    fi
   fi
 
   export DISTRIB_ID
