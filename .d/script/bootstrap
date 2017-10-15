@@ -39,6 +39,7 @@ function main {
       ${NOSUDO} sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
       ${NOSUDO} sudo yum install -y zlib-devel # netdata
       ${NOSUDO} sudo yum install -y readline-devel # ruby
+      ${NOSUDO} sudo yum install -y unzip # everyone
       ;;
   esac
 }
