@@ -10,8 +10,11 @@ function _base_profile {
   fi
 
   if [[ -z "${DISTRIB_ID}" ]]; then
-    DISTRIB_ID="$(awk '{print $1}' /etc/system-release)"
-    if [[ "$DISTRIB_ID" != "Amazon" ]]; then
+    if [[ -f /etc/lsb-release ]]; then
+      DISTRIB_ID="$(awk '{print $1}' /etc/system-release)"
+    fi
+
+    if [[ -z "${DISTRIB_ID}" ]]; then
       DISTRIB_ID="$(uname -s)"
     fi
   fi
