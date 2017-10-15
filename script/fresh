@@ -4,13 +4,8 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  case "$(uname -s)" in
-    Linux)
-      true
-      ;;
-    *)
-      return 0
-      ;;
+  case "${DISTRIB_ID}" in
+    Darwin) return 0 ;;
   esac
 
   for a in gcc; do
