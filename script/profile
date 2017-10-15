@@ -10,7 +10,7 @@ function _base_profile {
   fi
 
   if [[ -z "${DISTRIB_ID}" ]]; then
-    if [[ -f /etc/lsb-release ]]; then
+    if [[ -f /etc/system-release ]]; then
       DISTRIB_ID="$(awk '{print $1}' /etc/system-release)"
     fi
 
