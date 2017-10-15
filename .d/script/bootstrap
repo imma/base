@@ -36,8 +36,8 @@ function main {
       ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
       ;;
     Amazon)
-      ${NOSUDO} sudo yum install -y gcc-c++ gcc
-      ${NOSUDO} sudo yum install -y diffutils
+      ${NOSUDO} sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
+      ${NOSUDO} sudo yum install -y zlib-dev # netdata
       ;;
   esac
 }
