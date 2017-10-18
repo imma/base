@@ -35,7 +35,7 @@ function main {
       ${NOSUDO} sudo dpkg-reconfigure --frontend=noninteractive locales 
       ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
       ;;
-    Amazon)
+    Amazon|Centos)
       ${NOSUDO} sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
       ${NOSUDO} sudo yum install -y zlib-devel # netdata
       ${NOSUDO} sudo yum install -y readline-devel # ruby
