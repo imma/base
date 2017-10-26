@@ -8,7 +8,7 @@ function main {
     Darwin) return 0 ;;
   esac
 
-  for a in gcc; do
+  for a in gcc route; do
     if ! type -P "$a" >/dev/null; then
       return 1
     fi
