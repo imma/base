@@ -40,6 +40,7 @@ function main {
       ${NOSUDO} sudo yum install -y zlib-devel # netdata
       ${NOSUDO} sudo yum install -y readline-devel # ruby
       ${NOSUDO} sudo yum install -y unzip # everyone
+      ${NOSUDO} sudo yum install -y net-tools # openvpn
       ;;
   esac
 }
