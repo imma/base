@@ -26,7 +26,7 @@ function main {
       ${NOSUDO} sudo apt-get update
       ${NOSUDO} sudo $loader apt-get install -y \
         net-tools dnsmasq git curl rsync unzip perl ruby python \
-        language-pack-en build-essential vim man screen tmux openssh-server \
+        language-pack-en build-essential vim man screen openssh-server \
         aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
         libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
         autoconf automake libtool net-tools locales
