@@ -22,7 +22,12 @@ function _base_profile {
     if [[ -f /etc/system-release ]]; then
       DISTRIB_ID="$(awk '{print $1}' /etc/system-release)"
     fi
+  fi
 
+  if [[ -z "${DISTRIB_ID}" ]]; then
+    if [[ -f /etc/alpine-release ]]; then
+      DISTRIB_ID="$(awk '{print $1}' /etc/system-release | cut -d. -f1-2)"
+    fi
   fi
 
   if [[ -z "${DISTRIB_ID}" ]]; then
