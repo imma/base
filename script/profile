@@ -31,6 +31,12 @@ function _base_profile {
   fi
 
   if [[ -z "${DISTRIB_ID}" ]]; then
+    if [[ -f /etc/debian_version ]]; then
+      DISTRIB_ID="Debian"
+    fi
+  fi
+
+  if [[ -z "${DISTRIB_ID}" ]]; then
     DISTRIB_ID="$(uname -s)"
   fi
 
