@@ -4,33 +4,7 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  if [[ "$DISTRIB_ID" == "Darwin" ]]; then
-    return 0
-  fi
-
-  set -x
-
   case "$DISTRIB_ID" in
-    Ubuntu)
-      local loader='env DEBIAN_FRONTEND=noninteractive'
-
-      if ! type -P sudo >/dev/null; then
-        apt-get update
-        $loader apt-get install -y sudo
-      else
-        ${NOSUDO} sudo apt-get update
-      fi
-
-      ${NOSUDO} sudo $loader apt-get install -y software-properties-common python-software-properties
-      ${NOSUDO} sudo env - add-apt-repository -y ppa:git-core/ppa
-      ${NOSUDO} sudo apt-get update
-      ${NOSUDO} sudo $loader apt-get install -y \
-        net-tools dnsmasq git curl rsync unzip perl ruby python \
-        language-pack-en build-essential vim man screen openssh-server \
-        aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
-        libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
-        autoconf automake libtool net-tools locales
-      ;;
     Amazon|CentOS)
       ${NOSUDO} sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
       ${NOSUDO} sudo yum install -y zlib-devel # netdata

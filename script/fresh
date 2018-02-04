@@ -4,16 +4,6 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  case "${DISTRIB_ID}" in
-    Darwin) return 0 ;;
-  esac
-
-  for a in gcc route; do
-    if ! type -P "$a" >/dev/null; then
-      return 1
-    fi
-  done
-
   return 0
 }
 
