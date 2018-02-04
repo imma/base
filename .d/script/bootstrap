@@ -30,10 +30,6 @@ function main {
         aptitude runit nfs-common portmap gettext-base libffi-dev libssl-dev \
         libreadline-dev build-essential zlib1g-dev libxml2-dev libxslt1-dev \
         autoconf automake libtool net-tools locales
-
-      ${NOSUDO} sudo locale-gen en_US.UTF-8
-      ${NOSUDO} sudo dpkg-reconfigure --frontend=noninteractive locales 
-      ${NOSUDO} sudo update-locale LANG=en_US.UTF-8
       ;;
     Amazon|CentOS)
       ${NOSUDO} sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
