@@ -4,8 +4,12 @@
     "py36",
     "py27",
     "ruby",
+    "yarn",
     "gpg",
-    "tmux"
+    "tmux",
+    "aws",
+    "tfenv",
+    "terraform",
   ],
   "versions": {}
 }
