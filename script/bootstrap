@@ -3,6 +3,10 @@
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
+
+  (cd "$shome/../go" && block bootstrap)
+  (cd "$shome/../fogg-cli" && make && rm -f bin/fogg-cli)
+  (cd "$shome/../go" && clean -fdx)
 }
 
 main "$@"
