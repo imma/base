@@ -4,6 +4,10 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
+  if ! type -P go >/dev/null; then
+    return 1
+  fi
+
   return 0
 }
 

@@ -5,7 +5,7 @@ function main {
   source "$shome/script/profile"
 
   (cd "$shome/../go" && block bootstrap)
-  (cd "$shome/../fogg-cli" && make && rm -f bin/fogg-cli)
+  (cd "$shome/../fogg-cli" && make)
   (cd "$shome/../go" && clean -fdx)
 }
 
