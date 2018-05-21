@@ -1,6 +1,11 @@
 {
   "require": [
-    "instance"
+    "pkgsrc",
+    "py36",
+    "py27",
+    "ruby",
+    "gpg",
+    "tmux"
   ],
   "versions": {}
 }
