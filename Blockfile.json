@@ -10,7 +10,9 @@
     "aws",
     "tfenv",
     "terraform",
-    "op"
+    "op",
+    "docker",
+    "docker-compose"
   ],
   "versions": {}
 }
