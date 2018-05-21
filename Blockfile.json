@@ -9,7 +9,7 @@
     "tmux",
     "aws",
     "tfenv",
-    "terraform",
+    "terraform"
   ],
   "versions": {}
 }
