@@ -6,7 +6,7 @@ function main {
 
   (cd "$shome/../go" && block bootstrap)
   (cd "$shome/../fogg-cli" && make)
-  (cd "$shome/../go" && clean -fdx)
+  (cd "$shome/../go" && git clean -fdx)
 }
 
 main "$@"
