@@ -12,7 +12,8 @@
     "terraform",
     "op",
     "docker",
-    "docker-compose"
+    "docker-compose",
+    "habitat"
   ],
   "versions": {}
 }
