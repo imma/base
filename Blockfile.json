@@ -13,7 +13,8 @@
     "op",
     "docker",
     "docker-compose",
-    "habitat"
+    "habitat",
+    "irssi"
   ],
   "versions": {}
 }
