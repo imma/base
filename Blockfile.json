@@ -1,6 +1,7 @@
 {
   "require": [
     "pkgsrc",
+    "go",
     "py36",
     "py27",
     "ruby",
@@ -14,7 +15,9 @@
     "docker",
     "docker-compose",
     "habitat",
-    "irssi"
+    "irssi",
+    "terraform",
+    "fogg"
   ],
   "versions": {}
 }
