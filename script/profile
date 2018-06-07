@@ -2,6 +2,8 @@
 
 function _base_profile {
   local shome="${_base_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
+
+  export CHECKPOINT_DISABLE=1
 }
 
 _base_profile
