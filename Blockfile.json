@@ -17,7 +17,8 @@
     "habitat",
     "irssi",
     "terraform",
-    "fogg"
+    "fogg",
+    "sshd"
   ],
   "versions": {}
 }
