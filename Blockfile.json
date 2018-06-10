@@ -18,7 +18,8 @@
     "irssi",
     "terraform",
     "fogg",
-    "sshd"
+    "sshd",
+    "teleport"
   ],
   "versions": {}
 }
