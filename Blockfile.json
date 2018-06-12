@@ -19,7 +19,9 @@
     "terraform",
     "fogg",
     "teleport",
-    "facts"
+    "facts",
+    "sshd",
+    "runtime"
   ],
   "versions": {}
 }
