@@ -15,7 +15,8 @@
     "terraform",
     "fogg",
     "teleport",
-    "facts"
+    "facts",
+    "lnav"
   ],
   "versions": {}
 }
