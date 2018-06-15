@@ -1,11 +1,7 @@
 {
   "require": [
+    "runtime",
     "pkgsrc",
-    "go",
-    "py36",
-    "py27",
-    "ruby",
-    "yarn",
     "gpg",
     "tmux",
     "aws",
@@ -19,9 +15,7 @@
     "terraform",
     "fogg",
     "teleport",
-    "facts",
-    "sshd",
-    "runtime"
+    "facts"
   ],
   "versions": {}
 }
