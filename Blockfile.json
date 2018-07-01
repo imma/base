@@ -1,5 +1,6 @@
 {
   "require": [
+    "shell",
     "runtime",
     "pkgsrc",
     "gpg",
